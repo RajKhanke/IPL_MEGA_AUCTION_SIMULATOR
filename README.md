@@ -567,24 +567,40 @@ ipl-auction-simulator/
 <img width="2749" height="1510" alt="image" src="https://github.com/user-attachments/assets/f70d9561-d36b-4e1d-8ad8-48d918257f58" />
 
 
+
+
 <img width="2313" height="1368" alt="image" src="https://github.com/user-attachments/assets/38fe8602-c323-450e-89d8-5197a33cab7b" />
+
+
 
 
 <img width="1341" height="1337" alt="image" src="https://github.com/user-attachments/assets/dcaca249-cba1-4e8d-8800-1476ae9c9371" />
 
 
+
+
+
 <img width="2877" height="1504" alt="image" src="https://github.com/user-attachments/assets/ec80c8a5-b721-4980-99ee-5923af3a8e43" />
+
+
+
 
 
 <img width="2834" height="1438" alt="image" src="https://github.com/user-attachments/assets/9401e0a3-739f-42d2-889b-c3c240c574a5" />
 
 
+
+
 <img width="1692" height="1331" alt="image" src="https://github.com/user-attachments/assets/068909bb-6edc-4fbf-9b28-9c93af0f4055" />
+
+
 
 
 <p align="center">
 <img alt="image1" src="https://github.com/user-attachments/assets/4691e7d4-d1d3-4c99-b112-a9120cf3e5d1" /><img alt="image2" src="https://github.com/user-attachments/assets/888d1a2a-5236-4f10-b589-3b9b063bfc5f" />
 </p>
+
+
 
 <img width="985" height="471" alt="image" src="https://github.com/user-attachments/assets/36d7e0b2-1449-4b65-a875-74b98087ac56" />
 
@@ -613,6 +629,7 @@ Contributions are welcome! If you'd like to contribute, please follow these step
 
 
 *Built with ❤️ for cricket fans by a Die-hard Cricket Fan ❤️ Inspired by the real IPL 2025 Mega Auction & 2026 Mini Auction*
+
 
 
 
