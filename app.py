@@ -9,7 +9,7 @@ from openai import OpenAI
 app = Flask(__name__, template_folder='templates', static_folder='static')
 
 # --- CONFIGURATION ---
-API_KEY = "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"
+API_KEY = os.getenv('API_KEY')
 client = OpenAI(base_url="https://integrate.api.nvidia.com/v1", api_key=API_KEY)
 
 # ─── IPL 2025 REALISTIC RETAINED SQUADS ───────────────────────────────────────
