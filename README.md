@@ -581,10 +581,9 @@ ipl-auction-simulator/
 
 <img width="1692" height="1331" alt="image" src="https://github.com/user-attachments/assets/068909bb-6edc-4fbf-9b28-9c93af0f4055" />
 
-<p align="center">
-<img width="499" height="937" alt="image" src="https://github.com/user-attachments/assets/4691e7d4-d1d3-4c99-b112-a9120cf3e5d1" />
 
-<img width="507" height="782" alt="image" src="https://github.com/user-attachments/assets/888d1a2a-5236-4f10-b589-3b9b063bfc5f" />
+<p align="center">
+<img alt="image1" src="https://github.com/user-attachments/assets/4691e7d4-d1d3-4c99-b112-a9120cf3e5d1" width="45" /><img alt="image2" src="https://github.com/user-attachments/assets/888d1a2a-5236-4f10-b589-3b9b063bfc5f" width="45" />
 </p>
 
 <img width="985" height="471" alt="image" src="https://github.com/user-attachments/assets/36d7e0b2-1449-4b65-a875-74b98087ac56" />
@@ -614,6 +613,7 @@ Contributions are welcome! If you'd like to contribute, please follow these step
 
 
 *Built with ❤️ for cricket fans by a Die-hard Cricket Fan ❤️ Inspired by the real IPL 2025 Mega Auction & 2026 Mini Auction*
+
 
 
 
