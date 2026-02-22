@@ -20,7 +20,7 @@
 - [Installation & Setup](#-installation--setup)
 - [Project Structure](#-project-structure)
 - [Output Photos](#-output-photos)
-- [cotributing](#-contributing)
+- [Contributing](#-contributing)
 
 ---
 
@@ -562,7 +562,7 @@ ipl-auction-simulator/
 ---
 
 
-## OUTPUT PHOTOS
+## 📸 Output Photos
 
 <img width="2749" height="1510" alt="image" src="https://github.com/user-attachments/assets/f70d9561-d36b-4e1d-8ad8-48d918257f58" />
 
@@ -629,9 +629,6 @@ Contributions are welcome! If you'd like to contribute, please follow these step
 
 
 *Built with ❤️ for cricket fans by a Die-hard Cricket Fan ❤️ Inspired by the real IPL 2025 Mega Auction & 2026 Mini Auction*
-
-
-
 
 
 
