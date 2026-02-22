@@ -19,8 +19,8 @@
 - [Tech Stack](#-tech-stack)
 - [Installation & Setup](#-installation--setup)
 - [Project Structure](#-project-structure)
-- [Output Photos](#output=photos)
-- [cotributing](#contributing)
+- [Output Photos](#-output-photos)
+- [cotributing](#-contributing)
 
 ---
 
@@ -629,6 +629,7 @@ Contributions are welcome! If you'd like to contribute, please follow these step
 
 
 *Built with ❤️ for cricket fans by a Die-hard Cricket Fan ❤️ Inspired by the real IPL 2025 Mega Auction & 2026 Mini Auction*
+
 
 
 
