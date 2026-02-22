@@ -1,0 +1,3003 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IPL 2026 Mega Auction</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Rajdhani:wght@400;500;600;700&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg-deep: #030508;
+    --bg-panel: #080d14;
+    --bg-card: #0d1520;
+    --bg-elevated: #111b28;
+    --border: rgba(255,255,255,0.06);
+    --border-bright: rgba(255,255,255,0.14);
+    --gold: #E8B84B;
+    --gold-dim: #9a7a2e;
+    --red: #E83535;
+    --green: #22C55E;
+    --blue: #3B82F6;
+    --text-primary: #F1F5F9;
+    --text-secondary: #94A3B8;
+    --text-dim: #475569;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; overflow: hidden; }
+  body {
+    font-family: 'Rajdhani', sans-serif;
+    background: var(--bg-deep);
+    color: var(--text-primary);
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+  }
+
+  /* ── SETUP SCREEN ── */
+  #setupScreen {
+    position: fixed; inset: 0;
+    background: radial-gradient(ellipse at 50% 30%, #0a1930 0%, #030508 70%);
+    display: flex; align-items: center; justify-content: flex-start;
+    z-index: 1000;
+    flex-direction: column;
+    gap: 32px;
+    padding: 40px 20px;
+    overflow-y: auto;
+  }
+  #setupScreen.hidden { display: none; }
+  .setup-logo {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 80px;
+    letter-spacing: 16px;
+    background: linear-gradient(135deg, #E8B84B, #fff, #E8B84B);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-shadow: none;
+    filter: drop-shadow(0 0 30px rgba(232,184,75,0.4));
+    animation: titlePulse 3s ease-in-out infinite;
+    margin-bottom: 12px;
+  }
+  @keyframes titlePulse {
+    0%,100% { filter: drop-shadow(0 0 30px rgba(232,184,75,0.4)); }
+    50% { filter: drop-shadow(0 0 60px rgba(232,184,75,0.7)); }
+  }
+  .setup-sub {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 14px;
+    letter-spacing: 8px;
+    color: var(--text-secondary);
+    text-align: center;
+    margin-top: -20px;
+    margin-bottom: 20px;
+  }
+  .setup-title {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 22px;
+    color: var(--text-secondary);
+    font-weight: 600;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    text-align: center;
+  }
+  .team-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 16px;
+    max-width: 1100px;
+    width: 100%;
+  }
+  .team-select-card {
+    background: var(--bg-card);
+    border: 2px solid var(--border);
+    border-radius: 12px;
+    padding: 20px 14px 16px 14px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    min-height: 200px;
+  }
+  .team-select-card:hover {
+    border-color: var(--gold-dim);
+    transform: translateY(-2px);
+  }
+  .team-select-logo {
+    height: 80px;
+    width: auto;
+    object-fit: contain;
+    margin-bottom: 4px;
+    max-width: 120px;
+  }
+  .team-select-card.selected {
+    border-color: var(--gold);
+    background: var(--bg-elevated);
+  }
+  .team-select-card.selected::after {
+    content: '✓';
+    position: absolute;
+    top: 6px; right: 8px;
+    color: var(--gold);
+    font-size: 14px;
+  }
+  .team-select-card .team-abbr {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 32px;
+    line-height: 1;
+    margin-bottom: 6px;
+  }
+  .team-select-card .team-budget {
+    font-size: 13px;
+    color: var(--text-primary);
+    font-weight: 700;
+    text-align: center;
+    margin: 0 auto;
+  }
+  .team-select-card .team-retained {
+    font-size: 11px;
+    color: var(--text-primary);
+    margin-top: 2px;
+    text-align: center;
+    font-weight: 600;
+  }
+  .btn-view-retained {
+    background: rgba(232,184,75,0.1);
+    border: 1px solid rgba(232,184,75,0.3);
+    color: var(--gold);
+    font-size: 10px;
+    font-weight: 600;
+    padding: 6px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-top: 6px;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+  }
+  .btn-view-retained:hover {
+    background: rgba(232,184,75,0.2);
+    border-color: var(--gold);
+  }
+  /* Retained Players Modal */
+  .retained-modal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.85);
+    z-index: 2000;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+  .retained-modal-content {
+    background: var(--bg-card);
+    border: 2px solid var(--border-bright);
+    border-radius: 16px;
+    padding: 32px;
+    max-width: 700px;
+    width: 100%;
+    max-height: 80vh;
+    overflow-y: auto;
+    position: relative;
+  }
+  .retained-modal-close {
+    position: absolute;
+    top: 16px;
+    right: 20px;
+    font-size: 32px;
+    color: var(--text-secondary);
+    cursor: pointer;
+    background: none;
+    border: none;
+    line-height: 1;
+  }
+  .retained-modal-close:hover {
+    color: var(--gold);
+  }
+  .retained-modal-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 36px;
+    color: var(--gold);
+    margin-bottom: 24px;
+    text-align: center;
+  }
+  .retained-players-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 16px;
+  }
+  .retained-player-card {
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+  }
+  .retained-player-photo {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    border: 3px solid rgba(232,184,75,0.3);
+    object-fit: cover;
+    background: linear-gradient(135deg, #1a1a1a, #2d2d2d);
+  }
+  .retained-player-photo-placeholder {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    border: 3px solid rgba(232,184,75,0.3);
+    background: linear-gradient(135deg, #1a1a1a, #2d2d2d);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 32px;
+    color: #666;
+  }
+  .retained-player-name {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--text-primary);
+    line-height: 1.2;
+  }
+  .retained-player-role {
+    font-size: 11px;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .retained-player-price {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 22px;
+    color: var(--gold);
+  }
+  .btn-start-auction {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 28px;
+    letter-spacing: 4px;
+    background: linear-gradient(135deg, #E8B84B, #C99A30);
+    color: #000;
+    border: none;
+    padding: 18px 64px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: 0 8px 32px rgba(232,184,75,0.3);
+  }
+  .btn-start-auction:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 48px rgba(232,184,75,0.5);
+  }
+
+  /* ── MAIN AUCTION UI ── */
+  #auctionUI { display: none; height: 100%; flex-direction: column; }
+  #auctionUI.visible { display: flex; }
+
+  /* Header */
+  .header {
+    height: 54px;
+    background: linear-gradient(90deg, #050a12, #080f1a, #050a12);
+    border-bottom: 1px solid rgba(232,184,75,0.2);
+    display: flex;
+    align-items: center;
+    padding: 0 16px;
+    gap: 16px;
+    flex-shrink: 0;
+    position: relative;
+  }
+  .header-logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 26px;
+    letter-spacing: 4px;
+    color: var(--gold);
+  }
+  .header-logo img {
+    height: 40px;
+    width: auto;
+    object-fit: contain;
+  }
+  .header-divider { width: 1px; height: 30px; background: var(--border-bright); }
+  .header-info {
+    display: flex; align-items: center; gap: 20px;
+    flex: 1;
+  }
+  .header-stat {
+    font-size: 12px;
+    color: var(--text-secondary);
+    font-weight: 600;
+    letter-spacing: 1px;
+  }
+  .header-stat span { color: var(--gold); font-size: 14px; }
+  .header-actions {
+    display: flex;
+    gap: 10px;
+    margin-left: auto;
+  }
+  .btn-header-action {
+    background: rgba(232,184,75,0.1);
+    border: 1px solid rgba(232,184,75,0.3);
+    color: var(--gold);
+    font-size: 11px;
+    font-weight: 700;
+    padding: 8px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    font-family: 'Rajdhani', sans-serif;
+  }
+  .btn-header-action:hover {
+    background: rgba(232,184,75,0.2);
+    border-color: var(--gold);
+    transform: translateY(-1px);
+  }
+  .user-team-badge {
+    margin-left: auto;
+    display: flex; align-items: center; gap: 10px;
+    background: var(--bg-card);
+    border: 1px solid var(--border-bright);
+    border-radius: 8px;
+    padding: 6px 14px;
+  }
+  .user-team-badge .label { font-size: 11px; color: var(--text-dim); font-weight: 600; letter-spacing: 1px; }
+  .user-team-badge .team-name {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 20px;
+    color: var(--gold);
+  }
+
+  /* Main layout */
+  .main-layout {
+    flex: 1;
+    display: grid;
+    grid-template-columns: 240px 1fr 280px;
+    overflow: hidden;
+    min-height: 0;
+  }
+
+  /* ── LEFT PANEL: Teams ── */
+  .left-panel {
+    background: var(--bg-panel);
+    border-right: 1px solid var(--border);
+    overflow-y: auto;
+    padding: 10px;
+    scrollbar-width: thin;
+    scrollbar-color: var(--border-bright) transparent;
+  }
+  .left-panel-title {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 9px;
+    letter-spacing: 3px;
+    color: var(--text-dim);
+    padding: 4px 4px 10px;
+    text-transform: uppercase;
+  }
+  .team-card {
+    border-radius: 8px;
+    padding: 10px;
+    margin-bottom: 6px;
+    cursor: pointer;
+    border: 1px solid var(--border);
+    background: var(--bg-card);
+    transition: all 0.15s;
+    position: relative;
+    overflow: hidden;
+  }
+  .team-card::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 3px;
+  }
+  .team-card:hover { border-color: var(--border-bright); background: var(--bg-elevated); }
+  .team-card.user-team { border-color: var(--gold) !important; }
+  .team-card.bidding { animation: bidFlash 0.4s ease; }
+  @keyframes bidFlash {
+    0%,100% { background: var(--bg-card); }
+    50% { background: var(--bg-elevated); }
+  }
+  .team-card-header {
+    display: flex; align-items: center; gap: 8px; margin-bottom: 6px;
+  }
+  .team-abbr-badge {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 18px;
+    line-height: 1;
+    min-width: 40px;
+  }
+  .team-card-stats {
+    display: flex; gap: 10px;
+    font-size: 11px;
+    color: var(--text-secondary);
+  }
+  .team-budget { font-size: 13px; font-weight: 700; margin-left: auto; color: #22C55E; }
+  .team-budget.low { color: #F59E0B; }
+  .team-budget.critical { color: var(--red); }
+  .team-mini-bars { display: flex; gap: 3px; margin-top: 4px; }
+  .mini-bar {
+    height: 3px; border-radius: 2px; background: var(--border);
+    flex: 1;
+    transition: background 0.3s;
+  }
+  .mini-bar.filled { background: currentColor; }
+
+  /* ── CENTER STAGE ── */
+  .center-stage {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: radial-gradient(ellipse at 50% 40%, #0a1428 0%, var(--bg-deep) 70%);
+    position: relative;
+    overflow: hidden;
+    padding: 20px;
+    gap: 20px;
+  }
+  .center-stage::before {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 50%;
+    transform: translateX(-50%);
+    width: 300px; height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(232,184,75,0.3), transparent);
+  }
+
+  /* Player Card */
+  .player-card {
+    width: 100%;
+    max-width: 520px;
+    background: var(--bg-card);
+    border: 1px solid var(--border-bright);
+    border-radius: 16px;
+    overflow: hidden;
+    position: relative;
+    box-shadow: 0 24px 64px rgba(0,0,0,0.6);
+  }
+  .player-photo {
+    position: absolute;
+    top: 50px;
+    right: 16px;
+    width: 85px;
+    height: 85px;
+    border-radius: 50%;
+    border: 3px solid rgba(232,184,75,0.3);
+    object-fit: cover;
+    background: linear-gradient(135deg, #1a1a1a, #2d2d2d);
+    z-index: 5;
+  }
+  .player-photo-placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 38px;
+    color: #666;
+    background: linear-gradient(135deg, #1a1a1a, #2d2d2d);
+    position: absolute;
+    top: 50px;
+    right: 16px;
+    width: 85px;
+    height: 85px;
+    border-radius: 50%;
+    border: 3px solid rgba(232,184,75,0.3);
+    z-index: 5;
+  }
+  .player-card-banner {
+    height: 6px;
+    background: linear-gradient(90deg, var(--gold), #fff, var(--gold));
+  }
+  .player-card-body { padding: 24px; }
+  .player-set-badge {
+    position: absolute;
+    top: 16px; right: 16px;
+    background: rgba(232,184,75,0.15);
+    border: 1px solid rgba(232,184,75,0.3);
+    color: var(--gold);
+    font-size: 11px;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 20px;
+    letter-spacing: 1px;
+  }
+  .player-name {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 52px;
+    line-height: 0.95;
+    letter-spacing: 2px;
+    color: #fff;
+    margin-bottom: 8px;
+    word-break: break-word;
+    padding-right: 110px;
+  }
+  .player-tags {
+    display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px;
+  }
+  .player-tag {
+    font-size: 11px;
+    font-weight: 700;
+    padding: 4px 12px;
+    border-radius: 4px;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+  }
+  .player-tag.role { background: rgba(59,130,246,0.15); color: #93C5FD; border: 1px solid rgba(59,130,246,0.2); }
+  .player-tag.country { background: rgba(255,255,255,0.06); color: var(--text-secondary); border: 1px solid var(--border-bright); }
+  .player-tag.overseas { background: rgba(239,68,68,0.15); color: #FCA5A5; border: 1px solid rgba(239,68,68,0.2); }
+  .player-tag.overseas::before { content: '✈️ '; }
+  .player-tag.capped { background: rgba(232,184,75,0.1); color: var(--gold); border: 1px solid rgba(232,184,75,0.2); }
+  .player-tag.ipl { background: rgba(34,197,94,0.1); color: #86EFAC; border: 1px solid rgba(34,197,94,0.2); }
+
+  .player-stats-row {
+    display: grid; grid-template-columns: 1fr 1fr 1fr;
+    gap: 1px;
+    background: var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+    margin-bottom: 20px;
+  }
+  .player-stat {
+    background: var(--bg-elevated);
+    padding: 10px 12px;
+    text-align: center;
+  }
+  .player-stat-val {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 24px;
+    line-height: 1;
+    color: var(--text-primary);
+  }
+  .player-stat-lbl {
+    font-size: 10px;
+    color: var(--text-dim);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-top: 2px;
+  }
+
+  /* Bid Display */
+  .bid-display {
+    background: var(--bg-deep);
+    border: 1px solid var(--border-bright);
+    border-radius: 12px;
+    padding: 20px;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .bid-display::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse at 50% 0%, rgba(232,184,75,0.05), transparent 70%);
+    pointer-events: none;
+  }
+  .bid-label {
+    font-size: 11px;
+    letter-spacing: 3px;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    text-align: center;
+  }
+  .bid-amount {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 72px;
+    line-height: 1;
+    color: var(--gold);
+    transition: color 0.2s;
+    animation: bidPop 0.3s ease;
+    text-align: center;
+    margin-bottom: 0;
+  }
+  @keyframes bidPop {
+    0% { transform: scale(0.95); }
+    60% { transform: scale(1.04); }
+    100% { transform: scale(1); }
+  }
+  .bid-unit { font-size: 24px; color: var(--gold-dim); }
+  .current-bidder-box {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 24px;
+    min-height: 80px;
+    transition: all 0.3s;
+    padding: 0 20px;
+  }
+  .bidder-team-logo-img {
+    height: 85px;
+    width: auto;
+    object-fit: contain;
+    filter: drop-shadow(0 4px 12px rgba(0,0,0,0.5));
+    flex-shrink: 0;
+  }
+
+  /* Timer */
+  .timer-track {
+    width: 100%;
+    max-width: 520px;
+    height: 4px;
+    background: var(--border-bright);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+  .timer-fill {
+    height: 100%;
+    border-radius: 4px;
+    transition: width 1s linear, background 0.5s;
+  }
+  .timer-text {
+    font-size: 13px;
+    letter-spacing: 2px;
+    font-weight: 700;
+    height: 20px;
+    color: var(--green);
+    transition: color 0.3s;
+  }
+
+  /* Controls */
+  .controls {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    width: 100%;
+    max-width: 520px;
+  }
+  .btn-bid {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 26px;
+    letter-spacing: 3px;
+    background: linear-gradient(135deg, #16A34A, #15803D);
+    color: #fff;
+    border: none;
+    padding: 18px;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.15s;
+    box-shadow: 0 4px 20px rgba(22,163,74,0.3);
+    position: relative;
+    overflow: hidden;
+  }
+  .btn-bid::after {
+    content: attr(data-next-bid);
+    display: block;
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 12px;
+    letter-spacing: 1px;
+    opacity: 0.8;
+    margin-top: -4px;
+  }
+  .btn-bid:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 8px 32px rgba(22,163,74,0.5); }
+  .btn-bid:disabled { opacity: 0.3; cursor: not-allowed; }
+  .btn-pass {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 26px;
+    letter-spacing: 3px;
+    background: var(--bg-elevated);
+    color: var(--text-secondary);
+    border: 1px solid var(--border-bright);
+    padding: 18px;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .btn-pass:hover:not(:disabled) { background: var(--bg-card); color: var(--red); border-color: rgba(232,68,68,0.3); }
+  .btn-pass:disabled { opacity: 0.3; cursor: not-allowed; }
+
+  /* Next player preview */
+  .next-player-preview {
+    font-size: 12px;
+    color: var(--text-dim);
+    letter-spacing: 1px;
+    text-align: center;
+    max-width: 520px;
+  }
+  .next-player-preview span { color: var(--text-secondary); font-weight: 600; }
+
+  /* ── RIGHT PANEL: History ── */
+  .right-panel {
+    background: var(--bg-panel);
+    border-left: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  .right-panel-tabs {
+    display: flex;
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+    background: var(--bg-card);
+  }
+  .rpanel-tab {
+    flex: 1;
+    padding: 12px;
+    text-align: center;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    transition: all 0.15s;
+  }
+  .rpanel-tab.active { color: var(--gold); border-bottom-color: var(--gold); }
+  .rpanel-content { flex: 1; overflow-y: auto; padding: 10px; scrollbar-width: thin; scrollbar-color: var(--border-bright) transparent; }
+  .rpanel-content.hidden { display: none; }
+
+  /* History items */
+  .history-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px;
+    border-radius: 6px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    margin-bottom: 5px;
+    animation: slideIn 0.3s ease;
+  }
+  @keyframes slideIn {
+    from { transform: translateX(20px); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+  }
+  .history-team-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .history-name { font-size: 13px; font-weight: 700; flex: 1; line-height: 1.3; color: var(--text-primary); }
+  .history-team { font-size: 11px; font-weight: 700; letter-spacing: 1px; }
+  .history-price { font-size: 15px; font-family: 'Bebas Neue', sans-serif; color: var(--gold); font-weight: 700; }
+  .history-role { font-size: 11px; color: var(--text-secondary); font-weight: 500; }
+
+  /* Squad view */
+  .squad-select { margin-bottom: 10px; }
+  .squad-select select {
+    width: 100%;
+    background: var(--bg-card);
+    color: var(--text-primary);
+    border: 1px solid var(--border-bright);
+    border-radius: 6px;
+    padding: 8px 10px;
+    font-size: 13px;
+    font-family: 'Rajdhani', sans-serif;
+    font-weight: 600;
+  }
+  .squad-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px;
+    background: var(--bg-elevated);
+    border-radius: 6px;
+    margin-bottom: 8px;
+    font-size: 12px;
+  }
+  .squad-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 8px;
+    border-radius: 5px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    margin-bottom: 4px;
+    font-size: 12px;
+  }
+  .squad-item-role {
+    font-size: 10px;
+    padding: 2px 6px;
+    border-radius: 3px;
+    background: var(--bg-elevated);
+    color: var(--text-dim);
+    font-weight: 600;
+  }
+  .squad-item-price { margin-left: auto; font-family: 'Bebas Neue', sans-serif; font-size: 15px; color: var(--gold); }
+  .squad-item.overseas-player { border-left: 2px solid #FCA5A5; }
+  .squad-retained-badge {
+    font-size: 9px;
+    padding: 1px 5px;
+    border-radius: 2px;
+    background: rgba(232,184,75,0.1);
+    color: var(--gold-dim);
+    font-weight: 700;
+  }
+
+  /* Overview table */
+  .overview-table {
+    width: 100%;
+    font-size: 11px;
+    border-collapse: collapse;
+    margin-top: 8px;
+  }
+  .overview-table thead {
+    background: var(--bg-elevated);
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+  .overview-table th {
+    padding: 8px 6px;
+    text-align: left;
+    font-size: 10px;
+    letter-spacing: 1px;
+    color: var(--text-dim);
+    font-weight: 700;
+    text-transform: uppercase;
+    border-bottom: 1px solid var(--border-bright);
+  }
+  .overview-table td {
+    padding: 8px 6px;
+    border-bottom: 1px solid var(--border);
+    color: var(--text-secondary);
+  }
+  .overview-table tr:hover {
+    background: var(--bg-elevated);
+  }
+  .overview-table .team-col {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+  }
+  .overview-table .budget-col {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 14px;
+    color: var(--green);
+  }
+  .overview-table .budget-col.low {
+    color: #F59E0B;
+  }
+  .overview-table .budget-col.critical {
+    color: var(--red);
+  }
+
+  /* Squad role sections */
+  .squad-role-section {
+    margin-bottom: 12px;
+  }
+  .squad-role-header {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--text-dim);
+    padding: 6px 8px;
+    background: var(--bg-elevated);
+    border-radius: 4px;
+    margin-bottom: 4px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .squad-role-count {
+    margin-left: auto;
+    font-size: 12px;
+    color: var(--text-secondary);
+  }
+
+  /* Result overlay - Star Sports style */
+  #resultOverlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(0,0,0,0.95), rgba(10,20,40,0.95));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 24px;
+    z-index: 100;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s;
+  }
+  #resultOverlay.visible { opacity: 1; pointer-events: all; }
+  .result-label {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 140px;
+    letter-spacing: 20px;
+    animation: resultZoomIn 0.6s cubic-bezier(0.34,1.56,0.64,1);
+    text-shadow: 0 0 60px currentColor, 0 0 100px currentColor, 0 4px 20px rgba(0,0,0,0.8);
+    filter: drop-shadow(0 12px 40px rgba(0,0,0,0.9));
+    position: relative;
+  }
+  .result-label::before {
+    content: '';
+    position: absolute;
+    inset: -20px;
+    background: radial-gradient(ellipse, rgba(232,184,75,0.1), transparent 70%);
+    z-index: -1;
+    animation: resultGlow 2s ease-in-out infinite;
+  }
+  @keyframes resultZoomIn {
+    0% { transform: scale(0.2) rotate(-15deg); opacity: 0; }
+    60% { transform: scale(1.1) rotate(2deg); opacity: 1; }
+    100% { transform: scale(1) rotate(0); opacity: 1; }
+  }
+  @keyframes resultGlow {
+    0%, 100% { opacity: 0.5; }
+    50% { opacity: 1; }
+  }
+  .result-team-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    animation: resultSlideUp 0.8s ease 0.3s both;
+  }
+  @keyframes resultSlideUp {
+    from { transform: translateY(30px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+  }
+  .result-team-logo-large {
+    height: 100px;
+    width: auto;
+    object-fit: contain;
+    filter: drop-shadow(0 8px 24px rgba(0,0,0,0.6));
+    animation: resultLogoSpin 0.8s ease 0.5s both;
+  }
+  @keyframes resultLogoSpin {
+    0% { transform: scale(0) rotate(-180deg); opacity: 0; }
+    70% { transform: scale(1.1) rotate(10deg); opacity: 1; }
+    100% { transform: scale(1) rotate(0); opacity: 1; }
+  }
+  @keyframes hammerDrop {
+    0% { transform: translateY(-50px) rotate(-45deg); opacity: 0; }
+    60% { transform: translateY(5px) rotate(5deg); opacity: 1; }
+    100% { transform: translateY(0) rotate(0); opacity: 1; }
+  }
+  @keyframes logoSpinIn {
+    0% { transform: scale(0) rotate(-180deg); opacity: 0; }
+    70% { transform: scale(1.1) rotate(10deg); opacity: 1; }
+    100% { transform: scale(1) rotate(0); opacity: 1; }
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+  }
+  .result-sub {
+    font-size: 28px;
+    color: var(--text-secondary);
+    font-weight: 700;
+    letter-spacing: 6px;
+    text-transform: uppercase;
+    font-family: 'Rajdhani', sans-serif;
+  }
+  .result-price {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 56px;
+    color: var(--gold);
+    text-shadow: 0 0 30px rgba(232,184,75,0.6);
+    letter-spacing: 4px;
+  }
+  .result-hammer {
+    position: absolute;
+    left: -200px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 180px;
+    opacity: 0.15;
+    animation: hammerSwing 1s ease;
+  }
+  @keyframes hammerSwing {
+    0% { transform: translateY(-50%) rotate(-45deg) scale(0); opacity: 0; }
+    50% { transform: translateY(-50%) rotate(10deg) scale(1.2); opacity: 0.2; }
+    100% { transform: translateY(-50%) rotate(0) scale(1); opacity: 0.15; }
+  }
+
+  /* Bid history panel */
+  .bid-history-panel {
+    display: none !important;
+  }
+  .bid-history-title {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 9px;
+    letter-spacing: 2px;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    margin-bottom: 10px;
+    text-align: center;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 8px;
+  }
+  .bid-history-item {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 8px 10px;
+    background: var(--bg-elevated);
+    border-radius: 6px;
+    margin-bottom: 6px;
+    border-left: 3px solid;
+    animation: bidSlideIn 0.3s ease;
+  }
+  @keyframes bidSlideIn {
+    from { opacity: 0; transform: translateX(-20px); }
+    to { opacity: 1; transform: translateX(0); }
+  }
+  .bid-history-team-name {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 18px;
+    line-height: 1;
+    letter-spacing: 1px;
+  }
+  .bid-history-amount {
+    font-size: 15px;
+    color: var(--gold);
+    font-weight: 700;
+    font-family: 'Bebas Neue', sans-serif;
+  }
+
+  /* Loading shimmer for player card */
+  .shimmer {
+    background: linear-gradient(90deg, var(--bg-card) 25%, var(--bg-elevated) 50%, var(--bg-card) 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+    border-radius: 6px;
+    height: 20px;
+  }
+  @keyframes shimmer {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+  }
+
+  /* Wait screen */
+  #waitScreen {
+    text-align: center;
+  }
+  .wait-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 42px;
+    letter-spacing: 6px;
+    color: var(--gold);
+    margin-bottom: 8px;
+  }
+  .wait-sub {
+    font-size: 14px;
+    color: var(--text-secondary);
+    letter-spacing: 2px;
+  }
+  .btn-bring-player {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 22px;
+    letter-spacing: 4px;
+    background: linear-gradient(135deg, var(--gold), #C99A30);
+    color: #000;
+    border: none;
+    padding: 16px 48px;
+    border-radius: 8px;
+    cursor: pointer;
+    margin-top: 20px;
+    transition: all 0.2s;
+    box-shadow: 0 8px 32px rgba(232,184,75,0.3);
+  }
+  .btn-bring-player:hover { transform: translateY(-2px); box-shadow: 0 12px 48px rgba(232,184,75,0.5); }
+
+  /* AI Thinking indicator */
+  .ai-thinking {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    color: var(--text-dim);
+    letter-spacing: 1px;
+    height: 20px;
+  }
+  .ai-dot {
+    width: 5px; height: 5px;
+    border-radius: 50%;
+    background: var(--gold);
+    animation: aiPulse 1.2s ease-in-out infinite;
+  }
+  .ai-dot:nth-child(2) { animation-delay: 0.2s; }
+  .ai-dot:nth-child(3) { animation-delay: 0.4s; }
+  @keyframes aiPulse {
+    0%,80%,100% { opacity: 0.2; transform: scale(0.8); }
+    40% { opacity: 1; transform: scale(1.2); }
+  }
+
+  /* Mobile guard */
+  @media (max-width: 900px) {
+    .main-layout { grid-template-columns: 1fr; }
+    .left-panel, .right-panel { display: none; }
+    .player-name { font-size: 38px; }
+    .bid-amount { font-size: 56px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ── SETUP SCREEN ── -->
+<div id="setupScreen">
+  <div>
+    <div class="setup-logo">TATA IPL 2026</div>
+    <div class="setup-sub">MEGA AUCTION SIMULATOR</div>
+  </div>
+  <div>
+    <div class="setup-title">SELECT YOUR FRANCHISE</div>
+  </div>
+  <div class="team-grid" id="teamSelectGrid">
+    <!-- Populated by JS -->
+  </div>
+  <button class="btn-start-auction" onclick="startAsTeam()">START AUCTION</button>
+</div>
+
+<!-- Retained Players Modal -->
+<div class="retained-modal" id="retainedModal">
+  <div class="retained-modal-content">
+    <button class="retained-modal-close" onclick="closeRetainedModal()">&times;</button>
+    <div class="retained-modal-title" id="retainedModalTitle">RETAINED PLAYERS</div>
+    <div class="retained-players-grid" id="retainedPlayersList"></div>
+  </div>
+</div>
+
+<!-- Sets View Modal -->
+<div class="retained-modal" id="setsModal">
+  <div class="retained-modal-content" style="max-width: 900px;">
+    <button class="retained-modal-close" onclick="closeSetsModal()">&times;</button>
+    <div class="retained-modal-title">PLAYER SETS & STATUS</div>
+    <div id="setsViewContent" style="overflow-x: auto;"></div>
+  </div>
+</div>
+
+<!-- Auction Rules Modal -->
+<div class="retained-modal" id="rulesModal">
+  <div class="retained-modal-content" style="max-width: 700px; max-height: 80vh; overflow-y: auto;">
+    <button class="retained-modal-close" onclick="closeRulesModal()">&times;</button>
+    <div class="retained-modal-title" style="background: linear-gradient(135deg, #E8B84B 0%, #FFD700 100%); color: #000; padding: 20px; margin: -20px -20px 20px; border-radius: 16px 16px 0 0;">
+      📋 IPL 2026 MEGA AUCTION RULES
+    </div>
+    <div style="padding: 20px; color: var(--text-primary);">
+      <div style="margin-bottom: 20px; text-align: center;">
+        <img src="https://upload.wikimedia.org/wikipedia/en/8/84/Indian_Premier_League_Official_Logo.svg" alt="IPL" style="height: 50px; margin-bottom: 10px; opacity: 0.8;">
+        <div style="font-size: 14px; color: var(--text-secondary);">Tata IPL 2026 - Mega Auction Simulator</div>
+      </div>
+
+      <div style="display: flex; flex-direction: column; gap: 20px;">
+        <!-- Rule 1 -->
+        <div style="background: rgba(232,184,75,0.1); border-left: 4px solid #E8B84B; padding: 15px; border-radius: 8px;">
+          <div style="font-weight: 700; color: #E8B84B; margin-bottom: 8px;">💰 Team Budgets</div>
+          <div style="font-size: 14px; line-height: 1.6;">Each team has a fixed auction budget left after retention among the total budget of 120 crores. Bids must be placed within available funds. Budget decreases with each purchase. No team can exceed its total budget limit.</div>
+        </div>
+
+        <!-- Rule 2 -->
+        <div style="background: rgba(52,211,153,0.1); border-left: 4px solid #22C55E; padding: 15px; border-radius: 8px;">
+          <div style="font-weight: 700; color: #22C55E; margin-bottom: 8px;">📈 Bid Increments</div>
+          <div style="font-size: 14px; line-height: 1.6;">
+            <strong>Base Price &lt; ₹200L:</strong> Bids increase by ₹10 lakh<br>
+            <strong>₹200L - ₹500L:</strong> Bids increase by ₹25 lakh<br>
+            <strong>₹500L+:</strong> Bids increase by ₹50 lakh<br>
+            Standard increments ensure realistic pricing.
+          </div>
+        </div>
+
+        <!-- Rule 3 -->
+        <div style="background: rgba(59,130,246,0.1); border-left: 4px solid #3B82F6; padding: 15px; border-radius: 8px;">
+          <div style="font-weight: 700; color: #3B82F6; margin-bottom: 8px;">🎯 Right To Match (RTM)</div>
+          <div style="font-size: 14px; line-height: 1.6;">Teams can use RTM cards to retain players from their previous squad. RTM can be exercised after the highest bid is placed. If RTM is used, the retaining team matches the highest bid or passes.</div>
+        </div>
+
+        <!-- Rule 4 -->
+        <div style="background: rgba(168,85,247,0.1); border-left: 4px solid #A855F7; padding: 15px; border-radius: 8px;">
+          <div style="font-weight: 700; color: #A855F7; margin-bottom: 8px;">👥 Squad Size & Overseas Limit</div>
+          <div style="font-size: 14px; line-height: 1.6;">Minimum of 18 and Maximum 25 players per team is needed to complete the squad. Maximum 8 and Minimum 6 overseas players per team are needed. In each squad, at least 2 wicket keepers, 5 bowlers and 5 batsmen are required.</div>
+        </div>
+
+        <!-- Rule 5 -->
+        <div style="background: rgba(239,68,68,0.1); border-left: 4px solid #EF4444; padding: 15px; border-radius: 8px;">
+          <div style="font-weight: 700; color: #EF4444; margin-bottom: 8px;">❌ Unsold Players</div>
+          <div style="font-size: 14px; line-height: 1.6;">Players that receive no bids go to the Additional Set. They get a second chance to be auctioned at the end. If still unsold, they remain unsold for the season</div>
+        </div>
+
+        <!-- Rule 6 -->
+        <div style="background: rgba(249,115,22,0.1); border-left: 4px solid #F97316; padding: 15px; border-radius: 8px;">
+          <div style="font-weight: 700; color: #F97316; margin-bottom: 8px;">🎪 Auction Sequence</div>
+          <div style="font-size: 14px; line-height: 1.6;">Players are presented in sets (M1, M2 marquee... followed by Additional Set of batsman, wicket keepers, Bowlers and All rouders). Each set is auctioned in random order. Auction continues until all players are sold, unsold status is finalized, or pass.</div>
+        </div>
+
+        <!-- Rule 7 -->
+        <div style="background: rgba(34,197,94,0.1); border-left: 4px solid #10B981; padding: 15px; border-radius: 8px;">
+          <div style="font-weight: 700; color: #10B981; margin-bottom: 8px;">⏱️ Bidding Process</div>
+          <div style="font-size: 14px; line-height: 1.6;">Each player auction starts at base price. Your team can bid, pass, or AI teams can bid. Last team to bid wins the player at their bid price or base price if no bids.</div>
+        </div>
+      </div>
+
+      <div style="margin-top: 25px; padding-top: 15px; border-top: 1px solid var(--border); text-align: center;">
+        <button onclick="proceedToAuction()" 
+                style="padding: 15px 40px; background: linear-gradient(135deg, #E8B84B 0%, #FFD700 100%); color: #000; border: none; border-radius: 12px; font-weight: 700; font-size: 16px; cursor: pointer; transition: all 0.3s;">
+          I UNDERSTAND - START AUCTION →
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Live Log Modal -->
+<div class="retained-modal" id="liveLogModal">
+  <div class="retained-modal-content" style="max-width: 700px;">
+    <button class="retained-modal-close" onclick="closeLiveLogModal()">&times;</button>
+    <div class="retained-modal-title">LIVE BIDDING LOG</div>
+    <div id="liveLogContent" style="max-height: 500px; overflow-y: auto;"></div>
+  </div>
+</div>
+
+<!-- RTM Initial Decision Modal -->
+<div class="retained-modal" id="rtmModal">
+  <div class="retained-modal-content" style="max-width: 600px;">
+    <div class="retained-modal-title" style="background: linear-gradient(135deg, #FF6B35 0%, #FF8C42 100%); color: white; padding: 20px; margin: -20px -20px 20px; border-radius: 16px 16px 0 0;">
+      🎯 RIGHT TO MATCH OPPORTUNITY
+    </div>
+    <div style="padding: 20px; text-align: center;">
+      <div style="font-size: 20px; color: #64748B; margin-bottom: 15px;">Player:</div>
+      <div style="font-size: 32px; font-weight: 700; color: #1E293B; margin-bottom: 25px;" id="rtmPlayerName"></div>
+      
+      <div style="background: #F1F5F9; border-radius: 12px; padding: 20px; margin-bottom: 25px;">
+        <div style="font-size: 16px; color: #64748B; margin-bottom: 10px;">Highest Bidder</div>
+        <div style="font-size: 24px; font-weight: 700; color: #1E293B; margin-bottom: 15px;" id="rtmHighestBidder"></div>
+        <div style="font-size: 42px; font-weight: 700; color: #10B981;" id="rtmPrice"></div>
+      </div>
+      
+      <div style="font-size: 18px; color: #1E293B; margin-bottom: 10px;">
+        <span id="rtmTeamName" style="font-weight: 700; color: #FF6B35;"></span> can match this bid
+      </div>
+      <div style="font-size: 14px; color: #64748B; margin-bottom: 25px;" id="rtmCardsLeft"></div>
+      
+      <div style="display: flex; gap: 15px; justify-content: center;">
+        <button id="rtmUseBtn" onclick="handleRTMDecision(true)" 
+                style="flex: 1; max-width: 200px; padding: 15px 30px; font-size: 18px; font-weight: 700; background: linear-gradient(135deg, #10B981 0%, #059669 100%); color: white; border: none; border-radius: 12px; cursor: pointer; transition: all 0.3s;">
+          ✓ USE RTM
+        </button>
+        <button onclick="handleRTMDecision(false)" 
+                style="flex: 1; max-width: 200px; padding: 15px 30px; font-size: 18px; font-weight: 700; background: #E2E8F0; color: #1E293B; border: none; border-radius: 12px; cursor: pointer; transition: all 0.3s;">
+          ✗ PASS
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- RTM Counter Bid Modal -->
+<div class="retained-modal" id="incrementModal">
+  <div class="retained-modal-content" style="max-width: 600px;">
+    <div class="retained-modal-title" style="background: linear-gradient(135deg, #3B82F6 0%, #2563EB 100%); color: white; padding: 20px; margin: -20px -20px 20px; border-radius: 16px 16px 0 0;">
+      COUNTER BID OPPORTUNITY
+    </div>
+    <div style="padding: 20px; text-align: center;">
+      <div style="font-size: 18px; color: #1E293B; margin-bottom: 12px; font-weight: 700;">
+        YOUR DECISION NEEDED
+      </div>
+      <div style="font-size: 17px; color: #64748B; margin-bottom: 14px;">
+        <span id="incRtmTeam" style="font-weight: 700; color: #FF6B35;"></span> used RTM and raised the bid!
+      </div>
+      <div style="font-size: 13px; color: #64748B; margin-bottom: 22px; background: #EFF6FF; padding: 10px; border-radius: 8px; border-left: 3px solid #3B82F6;">
+        You (<span id="incHighestBidder" style="font-weight: 700; color: #1E293B;"></span>) can counter-raise or pass:
+      </div>
+      
+      <div style="background: #F1F5F9; border-radius: 12px; padding: 14px; margin-bottom: 18px;">
+        <div style="font-size: 13px; color: #64748B; margin-bottom: 5px;">RTM Raised Price</div>
+        <div id="incCurrentPrice" style="font-size: 36px; font-weight: 700; color: #3B82F6;"></div>
+      </div>
+      
+      <div style="margin-bottom: 22px;">
+        <label style="display: block; font-size: 15px; color: #64748B; margin-bottom: 8px;">Your Counter Bid (₹L) — must exceed RTM price</label>
+        <input type="number" id="newPriceInput" 
+               style="width: 200px; padding: 12px; font-size: 20px; font-weight: 700; text-align: center; border: 2px solid #3B82F6; border-radius: 8px;">
+      </div>
+      
+      <div style="display: flex; gap: 15px; justify-content: center;">
+        <button onclick="handleIncrementDecision(true)" 
+                style="flex: 1; max-width: 210px; padding: 14px 20px; font-size: 17px; font-weight: 700; background: linear-gradient(135deg, #3B82F6 0%, #2563EB 100%); color: white; border: none; border-radius: 12px; cursor: pointer;">
+          RAISE BID
+        </button>
+        <button onclick="handleIncrementDecision(false)" 
+                style="flex: 1; max-width: 210px; padding: 14px 20px; font-size: 17px; font-weight: 700; background: #E2E8F0; color: #1E293B; border: none; border-radius: 12px; cursor: pointer;">
+          PASS — Let RTM Win
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- RTM Final Match Modal -->
+<div class="retained-modal" id="finalRtmModal">
+  <div class="retained-modal-content" style="max-width: 600px;">
+    <div class="retained-modal-title" style="background: linear-gradient(135deg, #EF4444 0%, #DC2626 100%); color: white; padding: 20px; margin: -20px -20px 20px; border-radius: 16px 16px 0 0;">
+      🔥 FINAL RTM DECISION
+    </div>
+    <div style="padding: 20px; text-align: center;">
+      <div style="font-size: 18px; color: #64748B; margin-bottom: 15px;">
+        The bid has been raised to
+      </div>
+      
+      <div style="font-size: 48px; font-weight: 700; color: #EF4444; margin-bottom: 25px;" id="finalPrice"></div>
+      
+      <div style="background: #F1F5F9; border-radius: 12px; padding: 20px; margin-bottom: 25px;">
+        <div style="font-size: 20px; color: #1E293B; font-weight: 600;">
+          <span id="finalRtmTeam" style="color: #FF6B35;"></span>, will you match?
+        </div>
+      </div>
+      
+      <div style="display: flex; gap: 15px; justify-center;">
+        <button id="finalMatchBtn" onclick="handleFinalRTMDecision(true)" 
+                style="flex: 1; max-width: 200px; padding: 15px 30px; font-size: 18px; font-weight: 700; background: linear-gradient(135deg, #10B981 0%, #059669 100%); color: white; border: none; border-radius: 12px; cursor: pointer; transition: all 0.3s;">
+          ✓ MATCH
+        </button>
+        <button onclick="handleFinalRTMDecision(false)" 
+                style="flex: 1; max-width: 200px; padding: 15px 30px; font-size: 18px; font-weight: 700; background: #E2E8F0; color: #1E293B; border: none; border-radius: 12px; cursor: pointer; transition: all 0.3s;">
+          ✗ PASS
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── MAIN AUCTION UI ── -->
+<div id="auctionUI">
+
+  <!-- Header -->
+  <div class="header">
+    <div class="header-logo">
+      <img src="https://documents.iplt20.com/ipl/IPL_Logo_ForWeb.png" alt="IPL" onerror="this.style.display='none'">
+      <span>IPL 2026 AUCTION</span>
+    </div>
+    <div class="header-divider"></div>
+    <div class="header-info">
+      <div class="header-stat">ROUND <span id="hdrRound">—</span></div>
+      <div class="header-stat">SOLD <span id="hdrSold">0</span></div>
+      <div class="header-stat">REMAINING <span id="hdrRemaining">—</span></div>
+      <div class="header-stat" id="hdrAiStatus" style="display:none">
+        <div class="ai-thinking">
+          <div class="ai-dot"></div><div class="ai-dot"></div><div class="ai-dot"></div>
+          <span>AI THINKING</span>
+        </div>
+      </div>
+    </div>
+    <div class="header-actions">
+      <button class="btn-header-action" onclick="showSetsView()">📋 VIEW SETS</button>
+      <button class="btn-header-action" onclick="showLiveLog()">📊 LIVE LOG</button>
+    </div>
+    <div class="user-team-badge">
+      <span class="label">YOUR TEAM</span>
+      <span class="team-name" id="hdrUserTeam">RCB</span>
+    </div>
+  </div>
+
+  <!-- Main Layout -->
+  <div class="main-layout">
+
+    <!-- LEFT: Teams -->
+    <div class="left-panel">
+      <div class="left-panel-title">FRANCHISES</div>
+      <div id="teamsList"></div>
+    </div>
+
+    <!-- CENTER: Auction Stage -->
+    <div class="center-stage">
+      <div id="resultOverlay">
+        <div class="result-hammer">🔨</div>
+        <div class="result-label" id="resultLabel">SOLD!</div>
+        <div class="result-team-section" id="resultTeamSection">
+          <img class="result-team-logo-large" id="resultTeamLogo" src="" alt="">
+          <div class="result-sub" id="resultSub">TO RCB</div>
+          <div class="result-price" id="resultPrice">₹1200L</div>
+        </div>
+      </div>
+
+      <!-- Wait/Start Screen -->
+      <div id="waitScreen">
+        <div class="wait-title">AUCTION HOUSE</div>
+        <div class="wait-sub">READY TO BEGIN</div>
+        <button class="btn-bring-player" id="bringBtn" onclick="bringNextPlayer()">
+          BRING NEXT PLAYER
+        </button>
+      </div>
+
+      <!-- Player Card (hidden initially) -->
+      <div id="playerCardWrap" style="display:none; width:100%; max-width:520px; display:none; flex-direction:column; align-items:center; gap:14px;">
+        
+        <div class="player-card" id="playerCard">
+          <div class="player-card-banner" id="cardBanner"></div>
+          <div class="player-card-body">
+            <img class="player-photo" id="playerPhoto" src="" alt="Player" style="display:none;" onerror="this.style.display='none';">
+            <div class="player-set-badge" id="pSet">M1</div>
+            <div class="player-name" id="pName">PLAYER NAME</div>
+            <div class="player-tags" id="pTags"></div>
+            <div class="player-stats-row">
+              <div class="player-stat">
+                <div class="player-stat-val" id="pIPL">0</div>
+                <div class="player-stat-lbl">IPL MATCHES</div>
+              </div>
+              <div class="player-stat">
+                <div class="player-stat-val" id="pAge">—</div>
+                <div class="player-stat-lbl">AGE</div>
+              </div>
+              <div class="player-stat">
+                <div class="player-stat-val" id="pLastTeam">—</div>
+                <div class="player-stat-lbl">PREV TEAM</div>
+              </div>
+            </div>
+            <!-- Bid Display -->
+            <div class="bid-display">
+              <div class="bid-label">CURRENT BID</div>
+              <div class="current-bidder-box" id="bidderBox">
+                <img id="bidderTeamLogo" class="bidder-team-logo-img" src="" alt="" style="display:none;">
+                <div class="bid-amount">₹<span id="currPrice">0</span><span class="bid-unit">L</span></div>
+                <span id="bidderText" style="font-size:14px;color:#475569;letter-spacing:1px;display:none;">Opening Bid</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Timer -->
+        <div class="timer-track">
+          <div class="timer-fill" id="timerFill" style="width:100%; background:#22C55E;"></div>
+        </div>
+        <div class="timer-text" id="timerText">BIDDING OPEN</div>
+
+        <!-- Controls -->
+        <div class="controls">
+          <button class="btn-bid" id="bidBtn" data-next-bid="" onclick="userBid()">
+            BID
+          </button>
+          <button class="btn-pass" id="passBtn" onclick="userPass()">
+            PASS
+          </button>
+        </div>
+
+        <!-- Next player preview -->
+        <div class="next-player-preview" id="nextPreview"></div>
+      </div>
+
+      <!-- Bid history panel -->
+      <div class="bid-history-panel" id="bidHistoryPanel" style="display:none;">
+        <div class="bid-history-title">Live Bidding</div>
+        <div id="bidHistoryList"></div>
+      </div>
+    </div>
+
+    <!-- RIGHT: History + Squads -->
+    <div class="right-panel">
+      <div class="right-panel-tabs">
+        <div class="rpanel-tab" onclick="switchTab('history', this)">HISTORY</div>
+        <div class="rpanel-tab active" onclick="switchTab('overview', this)">OVERVIEW</div>
+        <div class="rpanel-tab" onclick="switchTab('squads', this)">SQUADS</div>
+      </div>
+      <div class="rpanel-content hidden" id="tabHistory">
+        <div id="historyList"></div>
+      </div>
+      <div class="rpanel-content" id="tabOverview">
+        <div id="overviewTable"></div>
+      </div>
+      <div class="rpanel-content hidden" id="tabSquads">
+        <div class="squad-select">
+          <select id="squadTeamSelect" onchange="loadSquad(this.value)">
+            <option value="">Select Team...</option>
+          </select>
+        </div>
+        <div id="squadView"></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+console.log('=== SCRIPT LOADED ===');
+// ── STATE ──────────────────────────────────────────────────────────────────
+let userTeam = "RCB";
+let teamsState = {};
+let teamColors = {};
+let auctionInterval = null;
+let timerValue = 10;
+let isRunning = false;
+let userPassed = false;
+let bidLog = [];
+let totalSold = 0;
+let currentPlayer = null;
+
+const TEAM_LIST = ["CSK","DC","GT","KKR","LSG","MI","PBKS","RCB","RR","SRH"];
+const TEAM_FULL_NAMES = {
+  CSK: "Chennai Super Kings", DC: "Delhi Capitals", GT: "Gujarat Titans",
+  KKR: "Kolkata Knight Riders", LSG: "Lucknow Super Giants", MI: "Mumbai Indians",
+  PBKS: "Punjab Kings", RCB: "Royal Challengers Bengaluru", RR: "Rajasthan Royals",
+  SRH: "Sunrisers Hyderabad"
+};
+const TEAM_LOGOS = {
+  CSK: "https://documents.iplt20.com/ipl/CSK/logos/Logooutline/CSKoutline.png",
+  DC: "https://documents.iplt20.com/ipl/DC/Logos/LogoOutline/DCoutline.png",
+  GT: "https://documents.iplt20.com/ipl/GT/Logos/Logooutline/GToutline.png",
+  KKR: "https://documents.iplt20.com/ipl/KKR/Logos/Logooutline/KKRoutline.png",
+  LSG: "https://documents.iplt20.com/ipl/LSG/Logos/Logooutline/LSGoutline.png",
+  MI: "https://documents.iplt20.com/ipl/MI/Logos/Logooutline/MIoutline.png",
+  PBKS: "https://documents.iplt20.com/ipl/PBKS/Logos/Logooutline/PBKSoutline.png",
+  RCB: "https://documents.iplt20.com/ipl/RCB/Logos/Logooutline/RCBoutline.png",
+  RR: "https://documents.iplt20.com/ipl/RR/Logos/Logooutline/RRoutline.png",
+  SRH: "https://documents.iplt20.com/ipl/SRH/Logos/Logooutline/SRHoutline.png"
+};
+const RETAINED_COUNTS = { CSK:5, DC:4, GT:5, KKR:6, LSG:5, MI:5, PBKS:2, RCB:3, RR:6, SRH:5 };
+let retainedPlayerNames = {};
+let setsRefreshInterval = null;
+let logRefreshInterval = null;
+
+// ── INIT ──────────────────────────────────────────────────────────────────
+async function init() {
+  console.log('Initializing application...');
+  try {
+    // Reset game state on every page load (handles server restart + manual refresh)
+    await fetch('/api/reset', {method: 'POST'});
+    console.log('Game state reset complete');
+    
+    const res = await fetch('/api/init');
+    if (!res.ok) {
+      throw new Error('Failed to fetch init data');
+    }
+    const data = await res.json();
+    console.log('Init data received:', data);
+    
+    teamsState = data.teams;
+    teamColors = data.team_colors;
+    
+    // Build retained player names map for all teams
+    for (const team in teamsState) {
+      const squad = teamsState[team].squad || [];
+      const retainedCount = RETAINED_COUNTS[team] || 0;
+      retainedPlayerNames[team] = squad.slice(0, retainedCount).map(p => p.name);
+    }
+    
+    buildSetupGrid();
+    populateSquadSelect();
+    console.log('Initialization complete');
+  } catch (error) {
+    console.error('Initialization error:', error);
+    alert('Failed to initialize application. Please refresh the page.');
+  }
+}
+
+function buildSetupGrid() {
+  const grid = document.getElementById('teamSelectGrid');
+  if (!grid) {
+    console.error('teamSelectGrid not found');
+    return;
+  }
+  
+  grid.innerHTML = '';
+  TEAM_LIST.forEach(t => {
+    const colors = teamColors[t] || {primary: '#fff'};
+    const budget = teamsState[t]?.budget || 0;
+    const retained = RETAINED_COUNTS[t] || 0;
+    const card = document.createElement('div');
+    card.className = 'team-select-card';
+    card.dataset.team = t;
+    card.style.setProperty('--team-color', colors.primary);
+    
+    const logoImg = document.createElement('img');
+    logoImg.className = 'team-select-logo';
+    logoImg.src = TEAM_LOGOS[t];
+    logoImg.alt = t;
+    logoImg.onerror = function() {
+      console.warn(`Failed to load logo for ${t}`);
+      this.style.display = 'none';
+    };
+    
+    const teamAbbr = document.createElement('div');
+    teamAbbr.className = 'team-abbr';
+    teamAbbr.style.color = colors.primary;
+    teamAbbr.style.fontSize = '28px';
+    teamAbbr.textContent = t;
+    
+    const teamBudget = document.createElement('div');
+    teamBudget.className = 'team-budget';
+    teamBudget.style.color = colors.primary;
+    teamBudget.style.fontSize = '11px';
+    teamBudget.style.fontWeight = '700';
+    teamBudget.textContent = `₹${budget}L`;
+    
+    const teamRetained = document.createElement('div');
+    teamRetained.className = 'team-retained';
+    teamRetained.style.fontSize = '10px';
+    teamRetained.style.marginTop = '-2px';
+    teamRetained.textContent = `${retained} retained`;
+    
+    const viewRetainedBtn = document.createElement('button');
+    viewRetainedBtn.className = 'btn-view-retained';
+    viewRetainedBtn.textContent = 'View Retained';
+    viewRetainedBtn.onclick = function(e) {
+      e.stopPropagation();
+      showRetainedPlayers(t);
+    };
+    
+    card.appendChild(logoImg);
+    card.appendChild(teamAbbr);
+    card.appendChild(teamBudget);
+    card.appendChild(teamRetained);
+    if (retained > 0) {
+      card.appendChild(viewRetainedBtn);
+    }
+    
+    card.onclick = function(e) {
+      e.preventDefault();
+      console.log('Team clicked:', t);
+      selectTeam(t, card);
+    };
+    
+    grid.appendChild(card);
+  });
+  
+  // Default select RCB after a short delay
+  setTimeout(() => {
+    const rcbCard = grid.querySelector('[data-team="RCB"]');
+    if (rcbCard) {
+      selectTeam('RCB', rcbCard);
+    }
+  }, 100);
+}
+
+function selectTeam(team, card) {
+  console.log('Selecting team:', team);
+  if (!card) {
+    console.error('Card element not found for team:', team);
+    return;
+  }
+  document.querySelectorAll('.team-select-card').forEach(c => c.classList.remove('selected'));
+  card.classList.add('selected');
+  userTeam = team;
+  console.log('User team set to:', userTeam);
+}
+
+async function startAsTeam() {
+  console.log('Starting auction as team:', userTeam);
+  
+  if (!userTeam) {
+    alert('Please select a team first!');
+    return;
+  }
+  
+  // Check network connectivity
+  if (!navigator.onLine) {
+    alert('No internet connection detected. Please connect to the internet to proceed.');
+    return;
+  }
+
+  try {
+    const response = await fetch('/api/set_team', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({team: userTeam})
+    });
+    
+    if (!response.ok) {
+      throw new Error('Failed to set team');
+    }
+
+    // Show rules modal before auction
+    document.getElementById('rulesModal').style.display = 'flex';
+  } catch (error) {
+    console.error('Error starting auction:', error);
+    alert('Error starting auction. Please try again.');
+    return;
+  }
+}
+
+async function proceedToAuction() {
+  // Close rules modal
+  document.getElementById('rulesModal').style.display = 'none';
+  
+  // Move to auction screen
+  console.log('Proceeding to auction...');
+  document.getElementById('setupScreen').classList.add('hidden');
+  document.getElementById('auctionUI').classList.add('visible');
+  document.getElementById('hdrUserTeam').textContent = userTeam;
+  document.getElementById('hdrUserTeam').style.color = teamColors[userTeam]?.primary || '#E8B84B';
+  
+  // Update squads UI
+  updateTeamsUI(teamsState);
+  populateSquadSelect();
+  updateOverviewTable();
+  
+  // Auto-start first player
+  setTimeout(bringNextPlayer, 500);
+}
+
+function closeRulesModal() {
+  document.getElementById('rulesModal').style.display = 'none';
+}
+
+// ── RETAINED PLAYERS MODAL ────────────────────────────────────────────────
+function showRetainedPlayers(team) {
+  const modal = document.getElementById('retainedModal');
+  const title = document.getElementById('retainedModalTitle');
+  const list = document.getElementById('retainedPlayersList');
+  
+  title.textContent = `${team} - RETAINED PLAYERS`;
+  title.style.color = teamColors[team]?.primary || '#E8B84B';
+  
+  list.innerHTML = '';
+  const squad = teamsState[team]?.squad || [];
+  const retainedCount = RETAINED_COUNTS[team] || 0;
+  const retainedPlayers = squad.slice(0, retainedCount);
+  
+  retainedPlayers.forEach(player => {
+    const card = document.createElement('div');
+    card.className = 'retained-player-card';
+    
+    // Player photo - improved URL format
+    const photoUrl = getPlayerPhotoURL(player.name);
+    
+    const photoImg = document.createElement('img');
+    photoImg.className = 'retained-player-photo';
+    photoImg.src = photoUrl;
+    photoImg.alt = player.name;
+    photoImg.style.display = 'block';
+    
+    const photoPlaceholder = document.createElement('div');
+    photoPlaceholder.className = 'retained-player-photo-placeholder';
+    photoPlaceholder.textContent = '👤';
+    photoPlaceholder.style.display = 'none';
+    
+    photoImg.onerror = function() {
+      // Try alternate formats
+      const altUrls = getAlternatePhotoURLs(player.name);
+      if (this.dataset.attempt === undefined) {
+        this.dataset.attempt = '0';
+      }
+      const attemptNum = parseInt(this.dataset.attempt);
+      if (attemptNum < altUrls.length) {
+        this.dataset.attempt = (attemptNum + 1).toString();
+        this.src = altUrls[attemptNum];
+      } else {
+        this.style.display = 'none';
+        photoPlaceholder.style.display = 'flex';
+      }
+    };
+    
+    const nameDiv = document.createElement('div');
+    nameDiv.className = 'retained-player-name';
+    nameDiv.textContent = player.name;
+    
+    const roleDiv = document.createElement('div');
+    roleDiv.className = 'retained-player-role';
+    roleDiv.textContent = player.role || 'All-Rounder';
+    
+    const priceDiv = document.createElement('div');
+    priceDiv.className = 'retained-player-price';
+    priceDiv.textContent = `₹${player.price || 0}L`;
+    
+    card.appendChild(photoImg);
+    card.appendChild(photoPlaceholder);
+    card.appendChild(nameDiv);
+    card.appendChild(roleDiv);
+    card.appendChild(priceDiv);
+    
+    list.appendChild(card);
+  });
+  
+  modal.style.display = 'flex';
+}
+
+function closeRetainedModal() {
+  document.getElementById('retainedModal').style.display = 'none';
+}
+
+// ── TEAM UI ───────────────────────────────────────────────────────────────
+function updateTeamsUI(teams) {
+  if (!teams) return;  // Guard: skip if teams data is missing
+  teamsState = teams;
+  const list = document.getElementById('teamsList');
+  if (!list) return;
+  list.innerHTML = '';
+  TEAM_LIST.forEach(t => {
+    const data = teams[t] || {};
+    const colors = teamColors[t] || {};
+    const isUser = t === userTeam;
+    const budget = data.budget || 0;
+    const budgetClass = budget < 500 ? 'critical' : budget < 2000 ? 'low' : '';
+    const card = document.createElement('div');
+    card.className = `team-card${isUser ? ' user-team' : ''}`;
+    card.id = `teamcard-${t}`;
+    card.style.setProperty('color', colors.primary);
+    card.style.setProperty('--team-primary', colors.primary);
+    
+    // Squad bars (players filled)
+    const filled = data.total_players || 0;
+    let bars = '';
+    for (let i = 0; i < 15; i++) {
+      bars += `<div class="mini-bar${i < filled ? ' filled' : ''}" style="color:${colors.primary}"></div>`;
+    }
+    
+    card.innerHTML = `
+      <div class="team-card-header">
+        <div class="team-abbr-badge" style="color:${colors.primary}">${t}</div>
+        <div class="team-budget ${budgetClass}" style="${budgetClass ? '' : `color:${colors.primary}`}">₹${budget}L</div>
+      </div>
+      <div class="team-card-stats">
+        <span>👤 ${filled}/25</span>
+        <span>🌍 ${data.overseas_count || 0}/8</span>
+      </div>
+      <div class="team-mini-bars">${bars}</div>
+    `;
+    card.onclick = () => { switchTab('squads', document.querySelectorAll('.rpanel-tab')[2]); loadSquad(t); document.getElementById('squadTeamSelect').value = t; };
+    list.appendChild(card);
+  });
+}
+
+// ── SQUAD ─────────────────────────────────────────────────────────────────
+function populateSquadSelect() {
+  const sel = document.getElementById('squadTeamSelect');
+  sel.innerHTML = '<option value="">Select Team...</option>';
+  TEAM_LIST.forEach(t => {
+    const opt = document.createElement('option');
+    opt.value = t; opt.textContent = `${t} — ${TEAM_FULL_NAMES[t]}`;
+    if (t === userTeam) opt.selected = true;
+    sel.appendChild(opt);
+  });
+  if (userTeam) loadSquad(userTeam);
+}
+
+async function loadSquad(team) {
+  if (!team) return;
+  const res = await fetch(`/api/team_squad/${team}`);
+  const data = await res.json();
+  const colors = teamColors[team] || {};
+  
+  const view = document.getElementById('squadView');
+  const spent = data.squad.reduce((s, p) => s + (p.price || 0), 0);
+  const retainedNames = retainedPlayerNames[team] || [];
+  
+  view.innerHTML = `
+    <div class="squad-header" style="border-left:3px solid ${colors.primary}">
+      <span style="font-weight:700;color:${colors.primary}">${team}</span>
+      <span style="color:#94A3B8">₹${data.budget}L left</span>
+    </div>
+    <div style="font-size:10px;color:#475569;margin-bottom:12px;letter-spacing:1px;">
+      PLAYERS: ${data.total_players}/25 &nbsp;|&nbsp; OVERSEAS: ${data.overseas_count}/8 &nbsp;|&nbsp; SPENT: ₹${spent}L
+    </div>
+  `;
+  
+  // Categorize by role
+  const wkPlayers = data.squad.filter(p => p.role && p.role.includes('WK'));
+  const batsmen = data.squad.filter(p => p.role === 'Batter');
+  const allRounders = data.squad.filter(p => p.role && p.role.includes('All-Rounder'));
+  const bowlers = data.squad.filter(p => p.role === 'Bowler');
+  
+  function renderRoleSection(title, players, emoji) {
+    if (players.length === 0) return '';
+    
+    let html = `
+      <div class="squad-role-section">
+        <div class="squad-role-header">
+          ${emoji} ${title}
+          <span class="squad-role-count">${players.length}</span>
+        </div>
+    `;
+    
+    players.sort((a, b) => (b.price || 0) - (a.price || 0)).forEach(p => {
+      const isRetained = retainedNames.includes(p.name);
+      const overseasIcon = p.is_overseas ? '✈️ ' : '';
+      html += `
+        <div class="squad-item${p.is_overseas ? ' overseas-player' : ''}">
+          <div>
+            <div style="font-weight:700;font-size:12px">${overseasIcon}${p.name}</div>
+            <div class="history-role">${p.role || ''}${p.country ? ' · ' + p.country : ''}</div>
+          </div>
+          ${isRetained && p.price > 0 ? '<span class="squad-retained-badge">RETAINED</span>' : ''}
+          <span class="squad-item-price" style="margin-left:auto">₹${p.price || 0}L</span>
+        </div>
+      `;
+    });
+    
+    html += '</div>';
+    return html;
+  }
+  
+  view.innerHTML += renderRoleSection('WICKET-KEEPERS', wkPlayers, '🧤');
+  view.innerHTML += renderRoleSection('BATSMEN', batsmen, '🏏');
+  view.innerHTML += renderRoleSection('ALL-ROUNDERS', allRounders, '⭐');
+  view.innerHTML += renderRoleSection('BOWLERS', bowlers, '🎯');
+}
+
+// ── AUCTION FLOW ──────────────────────────────────────────────────────────
+async function bringNextPlayer() {
+  // Show loading state
+  document.getElementById('waitScreen').style.display = 'none';
+  const wrap = document.getElementById('playerCardWrap');
+  wrap.style.display = 'flex';
+  
+  document.getElementById('hdrAiStatus').style.display = 'flex';
+  document.getElementById('bidBtn').disabled = true;
+  document.getElementById('passBtn').disabled = true;
+  const bidderText = document.getElementById('bidderText');
+  if (bidderText) {
+    bidderText.textContent = 'AI ANALYZING PLAYER...';
+    bidderText.style.color = '#E8B84B';
+  }
+  
+  const res = await fetch('/api/start_player', {method: 'POST'});
+  const data = await res.json();
+  
+  document.getElementById('hdrAiStatus').style.display = 'none';
+  
+  if (data.status === 'game_over') {
+    endAuction();
+    return;
+  }
+  
+  currentPlayer = data.player;
+  updateTeamsUI(data.teams);
+  
+  // Update header
+  document.getElementById('hdrRound').textContent = data.round_num;
+  document.getElementById('hdrRemaining').textContent = data.players_remaining;
+  
+  // Fill player card
+  const p = data.player;
+  const colors = teamColors[userTeam] || {};
+  document.getElementById('cardBanner').style.background = 
+    `linear-gradient(90deg, ${colors.primary || '#E8B84B'}, #fff, ${colors.primary || '#E8B84B'})`;
+  document.getElementById('pSet').textContent = p.set;
+  document.getElementById('pName').textContent = p.name;
+  document.getElementById('pIPL').textContent = p.stats?.ipl_matches || 0;
+  document.getElementById('pAge').textContent = p.age || '—';
+  document.getElementById('pLastTeam').textContent = p.stats?.last_team || '—';
+  
+  // Tags
+  const tagsEl = document.getElementById('pTags');
+  let rtmTag = '';
+  if (data.rtm_eligible_team && data.rtm_cards_available > 0) {
+    rtmTag = `<span class="player-tag" style="background: linear-gradient(135deg, #FF6B35, #F7931E); color: #fff; font-weight: 700;">🎯 ${data.rtm_eligible_team} RTM (${data.rtm_cards_available})</span>`;
+  }
+  tagsEl.innerHTML = `
+    <span class="player-tag role">${p.role}</span>
+    <span class="player-tag country${p.is_overseas ? ' overseas' : ''}">${p.country}</span>
+    ${p.is_overseas ? '<span class="player-tag overseas">OVERSEAS</span>' : ''}
+    ${p.is_capped ? '<span class="player-tag capped">CAPPED</span>' : '<span class="player-tag ipl">UNCAPPED</span>'}
+    ${p.stats?.ipl_matches > 50 ? '<span class="player-tag ipl">IPL VETERAN</span>' : ''}
+    ${rtmTag}
+  `;
+  
+  // Player photo
+  const playerPhoto = document.getElementById('playerPhoto');
+  
+  // Use improved photo URL function
+  const photoUrl = getPlayerPhotoURL(p.name);
+  playerPhoto.src = photoUrl;
+  playerPhoto.style.display = 'block';
+  playerPhoto.dataset.attempt = '0';
+  playerPhoto.onerror = function() {
+    // Try alternate formats
+    const altUrls = getAlternatePhotoURLs(p.name);
+    const attemptNum = parseInt(this.dataset.attempt || '0');
+    if (attemptNum < altUrls.length) {
+      this.dataset.attempt = (attemptNum + 1).toString();
+      this.src = altUrls[attemptNum];
+    } else {
+      // Fallback - just hide photo
+      this.style.display = 'none';
+    }
+  };
+  
+  // Restore bid display structure (in case it was replaced by SOLD animation)
+  const bidderBox = document.getElementById('bidderBox');
+  if (bidderBox) {
+    bidderBox.innerHTML = `
+      <img id="bidderTeamLogo" class="bidder-team-logo-img" src="" alt="" style="display:none;">
+      <div class="bid-amount">₹<span id="currPrice">0</span><span class="bid-unit">L</span></div>
+      <span id="bidderText" style="font-size:14px;color:#475569;letter-spacing:1px;display:none;">Opening Bid</span>
+    `;
+  }
+  
+  // Reset bid label
+  const bidLabel = document.querySelector('.bid-label');
+  if (bidLabel) {
+    bidLabel.textContent = 'CURRENT BID';
+    bidLabel.style.color = '';
+    bidLabel.style.fontSize = '';
+    bidLabel.style.fontWeight = '';
+  }
+  
+  // Set base price
+  const currPriceEl = document.getElementById('currPrice');
+  if (currPriceEl) currPriceEl.textContent = p.base_price;
+  
+  // Next bid info
+  updateBidButton(p.base_price);
+  
+  // Enable controls
+  const bidBtn = document.getElementById('bidBtn');
+  const passBtn = document.getElementById('passBtn');
+  if (bidBtn) bidBtn.disabled = false;
+  if (passBtn) {
+    passBtn.disabled = false;
+    passBtn.textContent = 'PASS';
+  }
+  userPassed = false;
+  
+  // Reset timer
+  timerValue = 10;
+  isRunning = true;
+  updateTimerDisplay();
+  bidLog = [];
+  updateBidHistory();
+  
+  if (auctionInterval) clearInterval(auctionInterval);
+  auctionInterval = setInterval(gameLoop, 1000);
+  
+  // Next player preview
+  const nextPreviewEl = document.getElementById('nextPreview');
+  if (nextPreviewEl) {
+    nextPreviewEl.innerHTML = 
+      `<span>${data.players_remaining}</span> players remaining in pool`;
+  }
+}
+
+function updateBidButton(currentBid) {
+  const bidderBox = document.getElementById('bidderBox');
+  const bidder = bidderBox ? bidderBox.textContent : '';
+  const isUserBidding = bidder.includes('YOU');
+  const nextBid = isUserBidding || currentBid === currentPlayer?.base_price 
+    ? (document.getElementById('current_bidder_is_null') ? currentBid : currentBid + getIncrement(currentBid))
+    : currentBid + getIncrement(currentBid);
+  
+  // Recalculate based on game state
+  const currPriceEl = document.getElementById('currPrice');
+  const cb = currPriceEl ? (parseInt(currPriceEl.textContent) || 0) : 0;
+  const nb = cb > 0 ? cb + getIncrement(cb) : cb;
+  const bidBtn = document.getElementById('bidBtn');
+  if (bidBtn) {
+    bidBtn.dataset.nextBid = `PLACE ₹${nb > cb ? nb : cb}L BID`;
+  }
+}
+
+function getIncrement(price) {
+  if (price < 100) return 10;
+  if (price < 200) return 20;
+  if (price < 500) return 25;
+  if (price < 1000) return 50;
+  if (price < 2000) return 100;
+  return 200;
+}
+
+// ── GAME LOOP ─────────────────────────────────────────────────────────────
+async function gameLoop() {
+  if (!isRunning) return;
+  
+  timerValue--;
+  updateTimerDisplay();
+  
+  const res = await fetch('/api/poll', {method: 'POST'});
+  const data = await res.json();
+  
+  if (data.action === 'bid') {
+    timerValue = 10;
+    updateTimerDisplay();
+    updateBidUI(data.amount, data.team, data.team_color);
+    
+    // Flash team card
+    const card = document.getElementById(`teamcard-${data.team}`);
+    if (card) { card.classList.remove('bidding'); void card.offsetWidth; card.classList.add('bidding'); }
+    
+    // Add to bid log
+    bidLog.unshift({team: data.team, amount: data.amount, color: data.team_color});
+    if (bidLog.length > 10) bidLog.pop();
+    updateBidHistory();
+    
+    // If user was top bidder and AI overbid, re-enable bid button
+    if (!userPassed) {
+      document.getElementById('bidBtn').disabled = false;
+    }
+  }
+  
+  if (timerValue <= 0) {
+    finalizePlayer();
+  }
+}
+
+async function userBid() {
+  const bidBtn = document.getElementById('bidBtn');
+  bidBtn.disabled = true;
+  
+  const res = await fetch('/api/place_bid', {method: 'POST'});
+  const data = await res.json();
+  
+  if (data.status === 'success') {
+    timerValue = 10;
+    updateTimerDisplay();
+    updateBidUI(data.bid, data.bidder, teamColors[data.bidder]?.primary || '#22C55E');
+    
+    bidLog.unshift({team: data.bidder, amount: data.bid, color: teamColors[data.bidder]?.primary});
+    if (bidLog.length > 10) bidLog.pop();
+    updateBidHistory();
+    
+    // Keep bid button disabled since user is now leading
+    bidBtn.dataset.nextBid = `LEADING AT ₹${data.bid}L`;
+  } else {
+    alert(data.msg);
+    bidBtn.disabled = false;
+  }
+}
+
+async function userPass() {
+  userPassed = true;
+  document.getElementById('bidBtn').disabled = true;
+  document.getElementById('passBtn').disabled = true;
+  document.getElementById('passBtn').textContent = 'PASSED';
+  await fetch('/api/user_pass', {method: 'POST'});
+}
+
+async function finalizePlayer() {
+  isRunning = false;
+  clearInterval(auctionInterval);
+  
+  const res = await fetch('/api/finalize', {method: 'POST'});
+  const data = await res.json();
+  
+  // Handle RTM flow
+  if (data.status === 'rtm_pending' || data.status === 'rtm_ai_pending') {
+    const userIsRTMTeam = data.rtm_team === userTeam;
+    
+    if (userIsRTMTeam) {
+      // User's team has RTM - show decision modal
+      showRTMDecision(data);
+    } else {
+      // AI handles RTM (even if user is highest bidder)
+      handleAIRTMFlow(data);
+    }
+    return;
+  }
+  
+  totalSold = (totalSold || 0) + (data.result_status === 'sold' ? 1 : 0);
+  const hdrSoldEl = document.getElementById('hdrSold');
+  if (hdrSoldEl) hdrSoldEl.textContent = totalSold;
+  
+  updateTeamsUI(data.teams);
+  updateOverviewTable();
+  
+  // Update history
+  updateHistoryUI(data.history);
+  
+  // Auto-refresh squad view if currently viewing a team
+  const squadSelect = document.getElementById('squadTeamSelect');
+  if (squadSelect && squadSelect.value) {
+    loadSquad(squadSelect.value);
+  }
+  
+  // Show result in bid display area (not overlay)
+  const bidderBox = document.getElementById('bidderBox');
+  const bidLabel = document.querySelector('.bid-label');
+  
+  if (data.result_status === 'sold') {
+    // Show hammer + logo + price in bid display
+    if (bidLabel) {
+      bidLabel.textContent = 'SOLD!';
+      bidLabel.style.color = '#22C55E';
+      bidLabel.style.fontSize = '16px';
+      bidLabel.style.fontWeight = '700';
+    }
+    
+    if (bidderBox) {
+      bidderBox.innerHTML = `
+        <div style="font-size: 64px; animation: hammerDrop 0.5s ease;">🔨</div>
+        <div style="font-family: 'Bebas Neue', sans-serif; font-size: 72px; color: var(--gold); line-height: 1;">
+          ₹${data.price}<span style="font-size: 24px; color: var(--gold-dim);">L</span>
+        </div>
+        <img src="${TEAM_LOGOS[data.winner]}" alt="${data.winner}" 
+             style="height: 85px; width: auto; filter: drop-shadow(0 4px 12px rgba(0,0,0,0.5)); animation: logoSpinIn 0.6s ease;">
+      `;
+    }
+  } else {
+    if (bidLabel) {
+      bidLabel.textContent = 'UNSOLD';
+      bidLabel.style.color = '#EF4444';
+      bidLabel.style.fontSize = '16px';
+      bidLabel.style.fontWeight = '700';
+    }
+    
+    if (bidderBox) {
+      bidderBox.innerHTML = `
+        <div style="font-size: 48px; opacity: 0.5;">❌</div>
+        <div style="font-family: 'Bebas Neue', sans-serif; font-size: 32px; color: #EF4444;">
+          NO BIDS
+        </div>
+      `;
+    }
+  }
+  
+  // Auto next after 3s
+  setTimeout(() => {
+    if (data.players_remaining === 0) {
+      endAuction();
+    } else {
+      bringNextPlayer();
+    }
+  }, 3000);
+}
+
+function showRTMDecision(data) {
+  const modal = document.getElementById('rtmModal');
+  const rtmTeam = data.rtm_team;
+  const highestBidder = data.highest_bidder;
+  const price = data.highest_bid;
+  const playerName = data.player_name;
+  
+  document.getElementById('rtmPlayerName').textContent = playerName;
+  document.getElementById('rtmTeamName').textContent = rtmTeam;
+  document.getElementById('rtmHighestBidder').textContent = highestBidder;
+  document.getElementById('rtmPrice').textContent = `₹${price}L`;
+  document.getElementById('rtmCardsLeft').textContent = `${data.rtm_cards_left} RTM cards left`;
+  
+  if (!data.can_afford) {
+    document.getElementById('rtmUseBtn').disabled = true;
+    document.getElementById('rtmUseBtn').style.opacity = '0.5';
+    document.getElementById('rtmPrice').style.color = '#EF4444';
+  } else {
+    document.getElementById('rtmUseBtn').disabled = false;
+    document.getElementById('rtmUseBtn').style.opacity = '1';
+    document.getElementById('rtmPrice').style.color = '#22C55E';
+  }
+  
+  modal.style.display = 'flex';
+}
+
+async function handleAIRTMFlow(data) {
+  const bidderBox = document.getElementById('bidderBox');
+  const bidLabel = document.querySelector('.bid-label');
+
+  // Setup RTM sequence panel
+  if (bidLabel) { bidLabel.textContent = 'RTM SEQUENCE'; bidLabel.style.color = '#FF6B35'; }
+  if (bidderBox) {
+    bidderBox.innerHTML = `
+      <div style="width:100%;background:rgba(4,8,18,0.97);border:1px solid rgba(255,107,53,0.4);border-radius:12px;padding:13px;font-family:'Rajdhani',sans-serif;">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid rgba(255,107,53,0.2);">
+          <div style="display:flex;gap:4px;">
+            <div style="width:7px;height:7px;border-radius:50%;background:#FF6B35;animation:pulse 0.7s infinite;"></div>
+            <div style="width:7px;height:7px;border-radius:50%;background:#FF6B35;animation:pulse 0.7s 0.22s infinite;"></div>
+            <div style="width:7px;height:7px;border-radius:50%;background:#FF6B35;animation:pulse 0.7s 0.44s infinite;"></div>
+          </div>
+          <span style="font-size:11px;letter-spacing:2px;color:#FF6B35;font-weight:700;text-transform:uppercase;">Right To Match</span>
+          <span style="font-size:11px;color:#64748B;margin-left:auto;">${data.rtm_team || ''}</span>
+        </div>
+        <div style="font-size:12px;color:#94A3B8;margin-bottom:8px;">Highest bid: <b style="color:#fff;">₹${data.highest_bid||0}L</b> by ${data.highest_bidder||'?'}</div>
+        <div id="rtmStepLog" style="display:flex;flex-direction:column;gap:5px;max-height:140px;overflow-y:auto;"></div>
+      </div>
+    `;
+  }
+
+  const addStep = async (text, color, wait=1250) => {
+    const log = document.getElementById('rtmStepLog');
+    if (!log) return;
+    const n = log.children.length + 1;
+    const el = document.createElement('div');
+    el.style.cssText = `padding:6px 10px;background:${color}18;border-left:3px solid ${color};border-radius:5px;font-size:13px;font-weight:600;color:var(--text-primary);line-height:1.4;`;
+    el.innerHTML = `<span style="color:${color};font-size:10px;font-weight:700;margin-right:6px;">${String(n).padStart(2,'0')}</span>${text}`;
+    log.appendChild(el);
+    log.scrollTop = log.scrollHeight;
+    await new Promise(r => setTimeout(r, wait));
+  };
+
+  await addStep(`${data.rtm_team || 'RTM team'} evaluating RTM option...`, '#FF6B35', 1200);
+
+  const res = await fetch('/api/rtm_ai_decide', { method: 'POST', headers: {'Content-Type':'application/json'} });
+  const result = await res.json();
+
+  if (result.status === 'rtm_ai_used_awaiting_user') {
+    // Case C: AI RTM team used RTM, user (highest bidder) must decide counter
+    await addStep(`⚡ ${result.rtm_team} USES RTM! Raised bid to ₹${result.rtm_raised_price}L`, '#FF6B35', 900);
+    await addStep(`Your turn — counter-raise or let ${result.rtm_team} have the player`, '#3B82F6', 700);
+    showIncrementDecision({
+      rtm_team: result.rtm_team,
+      highest_bidder: result.highest_bidder,
+      current_price: result.rtm_raised_price
+    });
+    return;
+  }
+
+  // Case A: AI vs AI — animate through rtm_steps from backend
+  if (result.rtm_steps && result.rtm_steps.length > 0) {
+    for (const step of result.rtm_steps) {
+      await addStep(step.text, step.color || '#FF6B35');
+    }
+    await new Promise(r => setTimeout(r, 500));
+  }
+
+  finalizeSale(result);
+}
+
+async function handleRTMDecision(useRTM) {
+  const modal = document.getElementById('rtmModal');
+  modal.style.display = 'none';
+  
+  const res = await fetch('/api/rtm_exercise', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({use_rtm: useRTM})
+  });
+  
+  const data = await res.json();
+  
+  if (data.status === 'rtm_used') {
+    // Check if user is highest bidder
+    if (data.highest_bidder === userTeam) {
+      // Show increment decision to user
+      showIncrementDecision(data);
+    } else {
+      // AI is highest bidder - let AI decide
+      handleAIIncrementDecision(data);
+    }
+  } else if (data.status === 'rtm_passed') {
+    // RTM team passed - finalize sale
+    finalizeSale(data);
+  }
+}
+
+async function handleAIIncrementDecision(data) {
+  // AI decides whether to raise bid
+  const bidderBox = document.getElementById('bidderBox');
+  const bidLabel = document.querySelector('.bid-label');
+  if (bidLabel) { bidLabel.textContent = 'COUNTER BID'; bidLabel.style.color = '#3B82F6'; }
+  if (bidderBox) {
+    bidderBox.innerHTML = `
+      <div style="background:rgba(59,130,246,0.12);border:1px solid rgba(59,130,246,0.35);border-radius:10px;padding:14px;text-align:center;">
+        <div style="font-size:12px;color:#94A3B8;margin-bottom:6px;letter-spacing:1.5px;">COUNTER BID DECISION</div>
+        <div style="font-size:16px;font-weight:700;color:#3B82F6;margin-bottom:8px;">${data.highest_bidder} deciding...</div>
+        <div style="font-size:12px;color:#64748B;margin-bottom:10px;">RTM price: <b>₹${data.current_price||0}L</b></div>
+        <div style="display:flex;gap:6px;justify-content:center;">
+          <div style="width:8px;height:8px;border-radius:50%;background:#3B82F6;animation:pulse 0.7s infinite;"></div>
+          <div style="width:8px;height:8px;border-radius:50%;background:#3B82F6;animation:pulse 0.7s 0.2s infinite;"></div>
+          <div style="width:8px;height:8px;border-radius:50%;background:#3B82F6;animation:pulse 0.7s 0.4s infinite;"></div>
+        </div>
+      </div>
+    `;
+  }
+  
+  const res = await fetch('/api/rtm_ai_counter', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'}
+  });
+  
+  const result = await res.json();
+  
+  if (result.status === 'bid_raised') {
+    // AI raised - check if user is RTM team
+    if (result.rtm_team === userTeam) {
+      showFinalRTMDecision(result);
+    } else {
+      // AI RTM team - let AI decide final
+      handleAIFinalRTM(result);
+    }
+  } else if (result.status === 'rtm_success' || result.status === 'completed') {
+    finalizeSale(result);
+  }
+}
+
+async function handleAIFinalRTM(data) {
+  // AI RTM team makes final decision
+  const bidderBox = document.getElementById('bidderBox');
+  const bidLabel = document.querySelector('.bid-label');
+  if (bidLabel) { bidLabel.textContent = 'FINAL RTM'; bidLabel.style.color = '#EF4444'; }
+  if (bidderBox) {
+    bidderBox.innerHTML = `
+      <div style="background:rgba(239,68,68,0.12);border:1px solid rgba(239,68,68,0.35);border-radius:10px;padding:14px;text-align:center;">
+        <div style="font-size:12px;color:#94A3B8;margin-bottom:6px;letter-spacing:1.5px;">FINAL RTM DECISION</div>
+        <div style="font-size:15px;font-weight:700;color:#EF4444;margin-bottom:4px;">${data.rtm_team} deciding...</div>
+        <div style="font-family:'Bebas Neue';font-size:38px;color:#EF4444;line-height:1.1;">₹${data.new_price}L</div>
+        <div style="display:flex;gap:6px;justify-content:center;margin-top:8px;">
+          <div style="width:8px;height:8px;border-radius:50%;background:#EF4444;animation:pulse 0.7s infinite;"></div>
+          <div style="width:8px;height:8px;border-radius:50%;background:#EF4444;animation:pulse 0.7s 0.2s infinite;"></div>
+          <div style="width:8px;height:8px;border-radius:50%;background:#EF4444;animation:pulse 0.7s 0.4s infinite;"></div>
+        </div>
+      </div>
+    `;
+  }
+  
+  const res = await fetch('/api/rtm_ai_final', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'}
+  });
+  
+  const result = await res.json();
+  finalizeSale(result);
+}
+
+function showIncrementDecision(data) {
+  const modal = document.getElementById('incrementModal');
+  if (!modal) return;
+  
+  const rtmTeam = data.rtm_team || '';
+  const highestBidder = data.highest_bidder || '';
+  const currentPrice = data.current_price || 0;
+  
+  const elRtm = document.getElementById('incRtmTeam');
+  const elBidder = document.getElementById('incHighestBidder');
+  const elPrice = document.getElementById('incCurrentPrice');
+  const elInput = document.getElementById('newPriceInput');
+  
+  if (elRtm) elRtm.textContent = rtmTeam;
+  if (elBidder) elBidder.textContent = highestBidder;
+  if (elPrice) elPrice.textContent = `₹${currentPrice}L`;
+  if (elInput) {
+    elInput.value = currentPrice + getIncrement(currentPrice);
+    elInput.min = currentPrice + 1;
+  }
+  
+  modal.style.display = 'flex';
+}
+
+async function handleIncrementDecision(raiseBid) {
+  const modal = document.getElementById('incrementModal');
+  modal.style.display = 'none';
+  
+  let newPrice = 0;
+  if (raiseBid) {
+    newPrice = parseInt(document.getElementById('newPriceInput').value);
+  }
+  
+  const res = await fetch('/api/rtm_increment', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({raise_bid: raiseBid, new_price: newPrice})
+  });
+  
+  const data = await res.json();
+  
+  if (data.status === 'bid_raised') {
+    // Check if user is the RTM team or just counter-raising as highest bidder
+    if (data.rtm_team === userTeam) {
+      // User is RTM team - show final RTM decision for the OTHER team
+      showFinalRTMDecision(data);
+    } else {
+      // User counter-raised as highest bidder - RTM team (AI) makes final decision
+      // Show "AI RTM team deciding..." message
+      const bidderBox = document.getElementById('bidderBox');
+      const bidLabel = document.querySelector('.bid-label');
+      
+      if (bidLabel) {
+        bidLabel.textContent = 'RTM DECIDING';
+        bidLabel.style.color = '#FF6B35';
+      }
+      
+      if (bidderBox) {
+        bidderBox.innerHTML = `
+          <div style="font-size: 48px; margin-bottom: 15px; animation: pulse 1.5s infinite;">🤔</div>
+          <div style="font-size: 24px; font-weight: 700; color: #FF6B35; margin-bottom: 10px;">
+            ${data.rtm_team} Making Final Decision...
+          </div>
+          <div style="font-size: 18px; color: #64748B;">
+            Your raised bid: ₹${data.new_price}L
+          </div>
+        `;
+      }
+      
+      // Wait for AI RTM team's final decision
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      
+      const aiRes = await fetch('/api/rtm_ai_final', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'}
+      });
+      
+      const aiDecision = await aiRes.json();
+      finalizeSale(aiDecision);
+    }
+  } else if (data.status === 'rtm_success') {
+    // RTM team got player
+    finalizeSale(data);
+  }
+}
+
+function showFinalRTMDecision(data) {
+  const modal = document.getElementById('finalRtmModal');
+  const rtmTeam = data.rtm_team;
+  const newPrice = data.new_price;
+  
+  document.getElementById('finalRtmTeam').textContent = rtmTeam;
+  document.getElementById('finalPrice').textContent = `₹${newPrice}L`;
+  
+  if (!data.can_rtm_afford) {
+    document.getElementById('finalMatchBtn').disabled = true;
+    document.getElementById('finalMatchBtn').style.opacity = '0.5';
+    document.getElementById('finalPrice').style.color = '#EF4444';
+  } else {
+    document.getElementById('finalMatchBtn').disabled = false;
+    document.getElementById('finalMatchBtn').style.opacity = '1';
+    document.getElementById('finalPrice').style.color = '#22C55E';
+  }
+  
+  modal.style.display = 'flex';
+}
+
+async function handleFinalRTMDecision(matchBid) {
+  const modal = document.getElementById('finalRtmModal');
+  modal.style.display = 'none';
+  
+  const res = await fetch('/api/rtm_final_match', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({match_bid: matchBid})
+  });
+  
+  const data = await res.json();
+  finalizeSale(data);
+}
+
+function finalizeSale(data) {
+  if (!data || data.status === 'error') {
+    console.error('finalizeSale called with bad data:', data);
+    return;
+  }
+  
+  // Only count sold (not unsold/error)
+  if (data.result_status === 'sold' || data.winner) {
+    totalSold = (totalSold || 0) + 1;
+    const hdrSoldEl = document.getElementById('hdrSold');
+    if (hdrSoldEl) hdrSoldEl.textContent = totalSold;
+  }
+  
+  updateTeamsUI(data.teams);
+  updateOverviewTable();
+  
+  // Update history if available
+  if (data.history) {
+    updateHistoryUI(data.history);
+  }
+  
+  // Auto-refresh squad view if currently viewing a team
+  const squadSelect = document.getElementById('squadTeamSelect');
+  if (squadSelect && squadSelect.value) {
+    loadSquad(squadSelect.value);
+  }
+  
+  // Show result in bid display area
+  const bidderBox = document.getElementById('bidderBox');
+  const bidLabel = document.querySelector('.bid-label');
+  
+  if (bidLabel) {
+    bidLabel.textContent = 'SOLD!';
+    bidLabel.style.color = '#22C55E';
+    bidLabel.style.fontSize = '16px';
+    bidLabel.style.fontWeight = '700';
+  }
+  
+  if (bidderBox) {
+    bidderBox.innerHTML = `
+      <div style="font-size: 64px; animation: hammerDrop 0.5s ease;">🔨</div>
+      <div style="font-family: 'Bebas Neue', sans-serif; font-size: 72px; color: var(--gold); line-height: 1;">
+        ₹${data.price}<span style="font-size: 24px; color: var(--gold-dim);">L</span>
+      </div>
+      <img src="${TEAM_LOGOS[data.winner]}" alt="${data.winner}" 
+           style="height: 85px; width: auto; filter: drop-shadow(0 4px 12px rgba(0,0,0,0.5)); animation: logoSpinIn 0.6s ease;">
+    `;
+  }
+  
+  // Auto next after 3s
+  setTimeout(() => {
+    bringNextPlayer();
+  }, 3000);
+}
+
+function endAuction() {
+  isRunning = false;
+  const playerCardWrap = document.getElementById('playerCardWrap');
+  const waitScreen = document.getElementById('waitScreen');
+  
+  if (playerCardWrap) playerCardWrap.style.display = 'none';
+  if (waitScreen) {
+    waitScreen.style.display = 'block';
+    waitScreen.innerHTML = `
+      <div class="wait-title">AUCTION COMPLETE</div>
+      <div class="wait-sub">ALL PLAYERS SOLD OR UNSOLD</div>
+      <div style="margin-top:20px; font-size:16px; color:#94A3B8;">Check Squads tab for full team rosters</div>
+      <button class="btn-bring-player" style="margin-top:16px" onclick="resetGame()">RESTART AUCTION</button>
+    `;
+  }
+}
+
+async function resetGame() {
+  await fetch('/api/reset', {method: 'POST'});
+  location.reload();
+}
+
+// ── UI HELPERS ────────────────────────────────────────────────────────────
+function updateBidUI(price, team, color) {
+  const currPriceEl = document.getElementById('currPrice');
+  if (currPriceEl) currPriceEl.textContent = price;
+  
+  const bidderText = document.getElementById('bidderText');
+  const bidderTeamLogo = document.getElementById('bidderTeamLogo');
+  const bidBtn = document.getElementById('bidBtn');
+  
+  // Reanimate
+  if (currPriceEl && currPriceEl.parentElement) {
+    const amountEl = currPriceEl.parentElement;
+    amountEl.style.animation = 'none';
+    void amountEl.offsetWidth;
+    amountEl.style.animation = 'bidPop 0.3s ease';
+  }
+  
+  // Show only team logo (no text)
+  if (bidderText) bidderText.style.display = 'none';
+  if (bidderTeamLogo) {
+    bidderTeamLogo.src = TEAM_LOGOS[team] || '';
+    bidderTeamLogo.style.display = 'block';
+  }
+  
+  if (bidBtn) {
+    if (team === userTeam) {
+      // Disable bid button when user is leading
+      bidBtn.disabled = true;
+      bidBtn.dataset.nextBid = `LEADING AT ₹${price}L`;
+    } else {
+      // Enable bid button when other team is leading
+      if (!userPassed) {
+        bidBtn.disabled = false;
+        const nextBid = price + getIncrement(price);
+        bidBtn.dataset.nextBid = `BID ₹${nextBid}L`;
+      }
+    }
+  }
+}
+
+function updateTimerDisplay() {
+  const fill = document.getElementById('timerFill');
+  const text = document.getElementById('timerText');
+  if (!fill || !text) return;
+  
+  const pct = (timerValue / 10) * 100;
+  fill.style.width = pct + '%';
+  
+  if (timerValue > 6) {
+    fill.style.background = '#22C55E';
+    text.style.color = '#22C55E';
+    text.textContent = 'BIDDING OPEN';
+  } else if (timerValue > 3) {
+    fill.style.background = '#F59E0B';
+    text.style.color = '#F59E0B';
+    text.textContent = 'GOING ONCE...';
+  } else if (timerValue > 0) {
+    fill.style.background = '#EF4444';
+    text.style.color = '#EF4444';
+    text.textContent = 'GOING TWICE...';
+  } else {
+    fill.style.background = '#EF4444';
+    text.style.color = '#EF4444';
+    text.textContent = 'SOLD! / UNSOLD!';
+  }
+}
+
+function updateBidHistory() {
+  const list = document.getElementById('bidHistoryList');
+  list.innerHTML = '';
+  
+  bidLog.slice(0, 10).forEach((entry, i) => {
+    const div = document.createElement('div');
+    div.className = 'bid-history-item';
+    div.style.borderLeftColor = entry.color || '#666';
+    div.style.opacity = 1 - (i * 0.07);
+    
+    // Text only, no logos
+    div.innerHTML = `
+      <div class="bid-history-team-name" style="color:${entry.color}">${entry.team}</div>
+      <div class="bid-history-amount">₹${entry.amount}L</div>
+    `;
+    list.appendChild(div);
+  });
+}
+
+function updateHistoryUI(history) {
+  const list = document.getElementById('historyList');
+  list.innerHTML = '';
+  history.forEach(item => {
+    const div = document.createElement('div');
+    div.className = 'history-item';
+    const color = item.status === 'sold' ? (item.color || '#22C55E') : '#666';
+    const overseasIcon = item.is_overseas ? '✈️ ' : '';
+    div.innerHTML = `
+      <div class="history-team-dot" style="background:${color}"></div>
+      <div>
+        <div class="history-name">${overseasIcon}${item.name}</div>
+        <div class="history-role">${item.role || ''} · ${item.country || ''}</div>
+      </div>
+      <div style="text-align:right">
+        <div class="history-team" style="color:${color}">${item.team}</div>
+        ${item.price > 0 ? `<div class="history-price">₹${item.price}L</div>` : '<div style="font-size:11px;color:#666">UNSOLD</div>'}
+      </div>
+    `;
+    list.appendChild(div);
+  });
+}
+
+function switchTab(tab, el) {
+  document.querySelectorAll('.rpanel-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.rpanel-content').forEach(c => c.classList.add('hidden'));
+  el.classList.add('active');
+  const tabId = tab === 'history' ? 'tabHistory' : tab === 'overview' ? 'tabOverview' : 'tabSquads';
+  document.getElementById(tabId).classList.remove('hidden');
+  if (tab === 'overview') updateOverviewTable();
+}
+
+function updateOverviewTable() {
+  const table = document.getElementById('overviewTable');
+  let html = `
+    <table class="overview-table">
+      <thead>
+        <tr>
+          <th>TEAM</th>
+          <th>PLAYERS</th>
+          <th>OVERSEAS</th>
+          <th>BUDGET</th>
+        </tr>
+      </thead>
+      <tbody>
+  `;
+  
+  TEAM_LIST.forEach(team => {
+    const data = teamsState[team] || {};
+    const colors = teamColors[team] || {};
+    const budget = data.budget || 0;
+    const budgetClass = budget < 500 ? 'critical' : budget < 2000 ? 'low' : '';
+    
+    html += `
+      <tr>
+        <td class="team-col" style="color:${colors.primary}">${team}</td>
+        <td>${data.total_players || 0}/25</td>
+        <td>${data.overseas_count || 0}/8</td>
+        <td class="budget-col ${budgetClass}">₹${budget}L</td>
+      </tr>
+    `;
+  });
+  
+  html += '</tbody></table>';
+  table.innerHTML = html;
+}
+
+// ── PLAYER PHOTO HELPERS ──────────────────────────────────────────────────
+function getPlayerPhotoURL(playerName) {
+  // Convert name to IPL website format (lowercase, spaces to dashes)
+  // Matches iplt20.com/players/player-name.png pattern
+  const formatted = playerName.toLowerCase()
+    .trim()
+    .replace(/\s+/g, '-')
+    .replace(/[^\w-]/g, '')  // Keep only alphanumeric and dashes
+    .replace(/--+/g, '-');    // Remove double dashes
+  return `https://www.iplt20.com/players/${formatted}.png`;
+}
+
+function getAlternatePhotoURLs(playerName) {
+  return [];
+}
+
+// ── SETS VIEW MODAL ───────────────────────────────────────────────────────
+let currentSetView = null; // Track which set is being viewed
+
+async function showSetsView(setName = null) {
+  const modal = document.getElementById('setsModal');
+  const content = document.getElementById('setsViewContent');
+  
+  // Clear any existing interval
+  if (setsRefreshInterval) {
+    clearInterval(setsRefreshInterval);
+  }
+  
+  async function loadSetsData(requestedSet = null) {
+    try {
+      const url = requestedSet 
+        ? `/api/get_sets_data?set=${encodeURIComponent(requestedSet)}&t=${Date.now()}`
+        : `/api/get_sets_data?t=${Date.now()}`;
+      const res = await fetch(url);
+      if (!res.ok) {
+        throw new Error(`HTTP error! status: ${res.status}`);
+      }
+      const data = await res.json();
+      
+      // Handle new navigation structure
+      if (!data.current_set || !data.current_set.players || data.current_set.players.length === 0) {
+        content.innerHTML = '<p style="color: var(--text-secondary); text-align: center; padding: 20px;">No data available</p>';
+        return;
+      }
+      
+      currentSetView = data.current_set.set_name;
+      const players = data.current_set.players;
+      const nav = data.navigation;
+      
+      let html = '';
+      
+      // Navigation header
+      html += `
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding: 0 10px;">`;
+      
+      // Previous button (only show if not first set)
+      if (nav.prev_set && nav.prev_set !== null && nav.prev_set !== 'null') {
+        html += `
+          <button onclick="navigateSet('${nav.prev_set}')" 
+                  style="padding: 10px 20px; background: var(--bg-elevated); border: 1px solid var(--border); border-radius: 8px; color: var(--text-primary); cursor: pointer; font-weight: 600;">
+            ← Previous
+          </button>`;
+      } else {
+        html += '<div style="width: 120px;"></div>';
+      }
+      
+      html += `
+          <h3 style="font-family: 'Bebas Neue', sans-serif; font-size: 28px; color: var(--gold);">
+            ${data.current_set.set_name} (${players.length} Players)
+          </h3>`;
+      
+      // Next button (only show if not last set)
+      if (nav.next_set && nav.next_set !== null && nav.next_set !== 'null') {
+        html += `
+          <button onclick="navigateSet('${nav.next_set}')" 
+                  style="padding: 10px 20px; background: var(--bg-elevated); border: 1px solid var(--border); border-radius: 8px; color: var(--text-primary); cursor: pointer; font-weight: 600;">
+            Next →
+          </button>`;
+      } else {
+        html += '<div style="width: 120px;"></div>';
+      }
+      
+      html += `
+        </div>
+      `;
+      
+      // Players table
+      html += `
+        <div style="margin-bottom: 20px;">
+          <table class="overview-table" style="width: 100%;">
+            <thead>
+              <tr>
+                <th>PLAYER</th>
+                <th>ROLE</th>
+                <th>COUNTRY</th>
+                <th>BASE</th>
+                <th>STATUS</th>
+                <th>TEAM</th>
+                <th>PRICE</th>
+              </tr>
+            </thead>
+            <tbody>
+      `;
+      
+      players.forEach(p => {
+        const status = p.sold_to ? 'SOLD' : (p.is_current ? 'CURRENT' : 'REMAINING');
+        const statusColor = p.sold_to ? '#22C55E' : (p.is_current ? '#E8B84B' : '#94A3B8');
+        const team = p.sold_to || '—';
+        const price = p.sold_price ? `₹${p.sold_price}L` : '—';
+        
+        html += `
+          <tr style="${p.is_current ? 'background: rgba(232,184,75,0.1);' : ''}">
+            <td style="font-weight: 600;">${p.name}</td>
+            <td>${p.role}</td>
+            <td>${p.country}</td>
+            <td>₹${p.base_price}L</td>
+            <td style="color: ${statusColor}; font-weight: 700;">${status}</td>
+            <td style="color: ${p.sold_to ? (teamColors[p.sold_to]?.primary || '#fff') : '#666'};">${team}</td>
+            <td style="font-family: 'Bebas Neue', sans-serif; font-size: 18px;">${price}</td>
+          </tr>
+        `;
+      });
+      
+      html += '</tbody></table></div>';
+      
+      content.innerHTML = html;
+    } catch (error) {
+      console.error('Error loading sets view:', error);
+      content.innerHTML = '<p style="color: #EF4444; text-align: center; padding: 20px;">Error loading data</p>';
+    }
+  }
+  
+  // Initial load
+  await loadSetsData(setName);
+  modal.style.display = 'flex';
+  
+  // Auto-refresh every 2 seconds
+  setsRefreshInterval = setInterval(() => loadSetsData(currentSetView), 2000);
+}
+
+function navigateSet(setName) {
+  if (setName) {
+    showSetsView(setName);
+  }
+}
+
+function closeSetsModal() {
+  document.getElementById('setsModal').style.display = 'none';
+  if (setsRefreshInterval) {
+    clearInterval(setsRefreshInterval);
+    setsRefreshInterval = null;
+  }
+}
+
+// ── LIVE LOG MODAL ────────────────────────────────────────────────────────
+async function showLiveLog() {
+  const modal = document.getElementById('liveLogModal');
+
+  // Clear any existing interval
+  if (logRefreshInterval) {
+    clearInterval(logRefreshInterval);
+  }
+  
+  async function loadLogData() {
+    try {
+      // Fetch raw live log
+      const res = await fetch(`/api/get_live_log?t=${Date.now()}`);
+      const data = res.ok ? await res.json() : {log: []};
+
+      // Current player name
+      const currentName = (currentPlayer && currentPlayer.name) ? currentPlayer.name : null;
+
+      // Build HTML — current player only
+      let html = `<div style="display: flex; flex-direction: column; gap: 12px;">`;
+
+      // Current Player Log
+      if (!currentName) {
+        html += '<div style="color: var(--text-secondary); text-align: center; padding: 20px;">No player currently active</div>';
+      } else {
+        const entries = (data.log || []).filter(e => e.player_name === currentName);
+        if (entries.length === 0) {
+          html += `<div style="color: var(--text-secondary); text-align: center; padding: 20px;">No bidding activity yet for <strong>${currentName}</strong></div>`;
+        } else {
+          // Show current player header
+          html += `<div style="background: var(--bg-elevated); border-left: 4px solid var(--gold); padding: 12px; border-radius: 8px; margin-bottom: 10px;">
+            <div style="font-weight: 700; font-size: 16px; color: var(--gold);">🎯 ${currentName}</div>
+            <div style="font-size: 12px; color: var(--text-secondary);">Base Price: ₹${currentPlayer.base_price}L</div>
+          </div>`;
+
+          entries.reverse().forEach(entry => {
+            const teamColor = teamColors[entry.team]?.primary || '#E8B84B';
+            html += `
+              <div style="background: var(--bg-elevated); border-left: 3px solid ${teamColor}; border-radius: 8px; padding: 12px 16px; display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                  <div style="font-weight: 700; color: var(--text-primary);">${entry.team}</div>
+                  <div style="font-size: 12px; color: var(--text-secondary);">${entry.action}</div>
+                </div>
+                <div style="text-align: right;">
+                  <div style="font-family: 'Bebas Neue'; font-size: 22px; color: ${teamColor}; font-weight: 700;">₹${entry.price}L</div>
+                </div>
+              </div>
+            `;
+          });
+        }
+      }
+
+      html += '</div>';
+      document.getElementById('liveLogContent').innerHTML = html;
+    } catch (error) {
+      console.error('Error loading live log:', error);
+      document.getElementById('liveLogContent').innerHTML = '<p style="color: #EF4444; text-align: center; padding: 20px;">Error loading log</p>';
+    }
+  }
+  
+  // Initial load
+  await loadLogData();
+  modal.style.display = 'flex';
+  
+  // Auto-refresh every 2 seconds
+  logRefreshInterval = setInterval(loadLogData, 2000);
+}
+
+function toggleCardBids(id) {
+  const el = document.getElementById(id);
+  if (el) el.style.display = el.style.display === 'none' ? 'block' : 'none';
+}
+
+function closeLiveLogModal() {
+  document.getElementById('liveLogModal').style.display = 'none';
+  if (logRefreshInterval) {
+    clearInterval(logRefreshInterval);
+    logRefreshInterval = null;
+  }
+}
+
+// ── START ─────────────────────────────────────────────────────────────────
+console.log('=== CALLING INIT() ===');
+init();
+</script>
+</body>
+</html>
