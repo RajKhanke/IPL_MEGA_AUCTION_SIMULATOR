@@ -1,2 +1,5 @@
 flask
-py
+pandas
+openai
+pdfplumber
+pillow
